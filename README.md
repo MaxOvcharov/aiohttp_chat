@@ -24,8 +24,7 @@ location ~ /.well-known {
         }
 ```
 
-##### Change root path on <path_to_your_project> in the
-##### file /etc/nginx/sites-available/default
+##### Change root path on <path_to_your_project> in the file /etc/nginx/sites-available/default
 ```
 root /etc/nginx/sites-available/default
 ```
@@ -36,8 +35,7 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-##### Before you starting generate certificate,
-##### you have to configure DNS on yours hosting with yours domain name.
+##### Before you starting generate certificate, you have to configure DNS on yours hosting with yours domain name.
 ```
 sudo letsencrypt certonly -a webroot --webroot-path=/<!!! path_to_your_project !!!> -d <!!! www.example.com !!!>
 ```
@@ -68,7 +66,7 @@ ssl_certificate_key /etc/letsencrypt/live/<!!! example.com !!!>/privkey.pem;
 ```
 sudo vim /etc/nginx/snippets/ssl-params.conf
 ```
-with this rows
+##### with this rows
 ```
 # from https://cipherli.st/
 # and https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html
@@ -93,15 +91,14 @@ add_header X-Content-Type-Options nosniff;
 ssl_dhparam /etc/ssl/certs/dhparam.pem;
 ```
 
-##### After that you should change configuration in nginx.conf with
-##### yours settings. Than you can use init.sh script for deploy this project
+##### After that you should change configuration in nginx.conf with yours settings. Than you can use init.sh script for deploy this project
 ```
 sudo chmod 777 init.sh
 ./init.sh --help
 ./init.sh --start
 ```
 
-#### 2)Install Supervisor
+#### 2) Install Supervisor
 ```
 sudo apt-get install -y supervisor
 ```
