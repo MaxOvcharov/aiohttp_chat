@@ -2,69 +2,69 @@
 
 #### 1) Generate SSL certificate and configuration of nginx:
 
-###### For python 2.x.x
+##### For python 2.x.x
 ```
 sudo apt-get install python-pip python-dev nginx
 ```
 
-###### For Python 3.x.x
+##### For Python 3.x.x
 ```
 sudo apt-get install python3-pip python3-dev nginx
 ```
 
-###### Install Let's Encrypt
+##### Install Let's Encrypt
 ```
 sudo apt-get install letsencrypt
 ```
 
-###### Add lines to the file /etc/nginx/sites-available/default
+##### Add lines to the file /etc/nginx/sites-available/default
 ```
 location ~ /.well-known {
                 allow all;
         }
 ```
 
-###### Change root path on <path_to_your_project> in the
-###### file /etc/nginx/sites-available/default
+##### Change root path on <path_to_your_project> in the
+##### file /etc/nginx/sites-available/default
 ```
 root /etc/nginx/sites-available/default
 ```
 
-###### Check Nginx settings
+##### Check Nginx settings
 ```
 sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-###### Before you starting generate certificate,
-###### you have to configure DNS on yours hosting with yours domain name.
+##### Before you starting generate certificate,
+##### you have to configure DNS on yours hosting with yours domain name.
 ```
 sudo letsencrypt certonly -a webroot --webroot-path=/<!!! path_to_your_project !!!> -d <!!! www.example.com !!!>
 ```
 
-###### You can find yours pub certificate and privet key in directory
+##### You can find yours pub certificate and privet key in directory
 
 ```
 sudo ls -l /etc/letsencrypt/live/your_domain_name
 ```
 
-###### Generate strong Diffie-Hellman group
+##### Generate strong Diffie-Hellman group
 ```
 sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 sudo ls -lah /etc/ssl/certs/dhparam.pem
 ```
 
-####### Create Nginx snippet for yours pub certificate and privet key
+##### Create Nginx snippet for yours pub certificate and privet key
 ```
 sudo vim /etc/nginx/snippets/ssl-<!!! example.com !!!>.conf
 ```
-####### with this rows
+##### with this rows
 ```
 ssl_certificate /etc/letsencrypt/live/<!!! example.com !!!>/fullchain.pem;
 ssl_certificate_key /etc/letsencrypt/live/<!!! example.com !!!>/privkey.pem;
 ```
 
-###### Create Nginx snippet for yours strong Diffie-Hellman group
+##### Create Nginx snippet for yours strong Diffie-Hellman group
 ```
 sudo vim /etc/nginx/snippets/ssl-params.conf
 ```
@@ -93,8 +93,8 @@ add_header X-Content-Type-Options nosniff;
 ssl_dhparam /etc/ssl/certs/dhparam.pem;
 ```
 
-###### After that you should change configuration in nginx.conf with
-###### yours settings. Than you can use init.sh script for deploy this project
+##### After that you should change configuration in nginx.conf with
+##### yours settings. Than you can use init.sh script for deploy this project
 ```
 sudo chmod 777 init.sh
 ./init.sh --help
