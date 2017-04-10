@@ -3,8 +3,8 @@
 import socketio
 
 from aiohttp import web
-from optparse import OptionParser
-from settings import logger
+from settings import logger, options
+
 sio = socketio.AsyncServer(async_mode='aiohttp')
 app = web.Application()
 sio.attach(app)
@@ -88,21 +88,7 @@ app.router.add_static('/static', 'static')
 app.router.add_get('/', index)
 
 if __name__ == '__main__':
-    parser = OptionParser()
-    parser.add_option('--path', dest='path',
-                      help='PATH TO UNIX SOCKET',
-                      metavar='PATH TO UNIX SOCKET')
-    parser.add_option('--port', dest='port',
-                      help='PORT FOR HTTP CONNECTION',
-                      metavar='PORT FOR HTTP CONNECTION')
-    parser.add_option('--host', dest='host',
-                      help='HOST NAME',
-                      default='127.0.0.2',
-                      metavar='HOST NAME')
-    (options, args) = parser.parse_args()
 
-    if not options.port:
-        parser.error('PORT is mandatory for running app')
     # Run background task
     # sio.start_background_task(background_task)
 
