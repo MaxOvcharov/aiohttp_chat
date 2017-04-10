@@ -1,27 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import argparse
-import logging
 import socketio
 
 from aiohttp import web
-
+from optparse import OptionParser
+from settings import logger
 sio = socketio.AsyncServer(async_mode='aiohttp')
 app = web.Application()
 sio.attach(app)
 
-logger = logging.getLogger('app')
-logger.setLevel(logging.DEBUG)
-
-f = logging.Formatter('[L:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s', datefmt='%d-%m-%Y %H:%M:%S')
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-ch.setFormatter(f)
-logger.addHandler(ch)
-
-parser = argparse.ArgumentParser(description="aiohttp server example")
-parser.add_argument('--path')
-parser.add_argument('--port')
 
 async def background_task():
     """Example of how to send server generated events to clients."""
@@ -39,15 +26,14 @@ async def index(request):
 
 @sio.on('my event', namespace='/test')
 async def test_message(sid, message):
-    logger.debug('My EVENT(%s): %s' % (sid, message))
     await sio.emit('my response', {'data': message['data']}, room=sid)
+    logger.debug('My EVENT (%s): %s' % (sid, message))
 
 
 @sio.on('my broadcast event', namespace='/test')
-async def join(sid, message):
-    sio.enter_room(sid, message['room'], namespace='/test')
-    await sio.emit('my response', {'data': 'Entered room: ' + message['room']},
-                   room=sid, namespace='test')
+async def broadcast_message(sid, message):
+    await sio.emit('my response', {'data': message['data']}, namespace='/test')
+    logger.debug('BROADCAST MESSAGE(%s): %s' % (sid, message))
 
 
 @sio.on('join', namespace='/test')
@@ -55,6 +41,7 @@ async def join(sid, message):
     sio.enter_room(sid, message['room'], namespace='/test')
     await sio.emit('my response', {'data': 'Entered room: ' + message['room']},
                    room=sid, namespace='/test')
+    logger.debug('JOIN ROOM (%s): %s' % (sid, message))
 
 
 @sio.on('leave', namespace='/test')
@@ -62,6 +49,7 @@ async def leave(sid, message):
     sio.leave_room(sid, message['room'], namespace='/test')
     await sio.emit('my response', {'data': 'Left room: ' + message['room']},
                    room=sid, namespace='/test')
+    logger.debug('LEAVE ROOM (%s): %s' % (sid, message))
 
 
 @sio.on('close room', namespace='/test')
@@ -69,38 +57,56 @@ async def close(sid, message):
     await sio.emit('my response', {'data': 'Room %s is closing' % message['room']},
                    room=message['room'], namespace='/test')
     await sio.close_room(message['room'], namespace='/test')
+    logger.debug('CLOSE ROOM (%s): %s' % (sid, message))
 
 
 @sio.on('my room event', namespace='/test')
 async def send_room_message(sid, message):
-    logger.debug('ROOM EVENT(%s): %s' % (sid, message))
     await sio.emit('my response', {'data': message['data']},
                    room=message['room'], namespace='/test')
+    logger.debug('ROOM EVENT (%s): %s' % (sid, message))
 
 
 @sio.on('disconnect request', namespace='/test')
 async def disconnect_request(sid):
     await sio.disconnect(sid, namespace='/test')
+    logger.debug('DISCONNECT REQUEST: %s' % sid)
 
 
 @sio.on('connect', namespace='/test')
 async def test_connect(sid, environ):
     await sio.emit('my response', {'data': 'Connected', 'count': 0},
                    room=sid, namespace='/test')
+    logger.debug('CONNECT USER: %s, ENVIRON: %s' % (sid, environ))
 
 
 @sio.on('disconnect', namespace='/test')
 def test_disconnect(sid):
-    print('Client disconnected')
-
+    logger.debug('DISCONNECT USER: %s' % sid)
 
 app.router.add_static('/static', 'static')
 app.router.add_get('/', index)
 
-
 if __name__ == '__main__':
-    args = parser.parse_args()
-    sio.start_background_task(background_task)
-    web.run_app(app, path=args.path, port=args.port)
+    parser = OptionParser()
+    parser.add_option('--path', dest='path',
+                      help='PATH TO UNIX SOCKET',
+                      metavar='PATH TO UNIX SOCKET')
+    parser.add_option('--port', dest='port',
+                      help='PORT FOR HTTP CONNECTION',
+                      metavar='PORT FOR HTTP CONNECTION')
+    parser.add_option('--host', dest='host',
+                      help='HOST NAME',
+                      default='127.0.0.2',
+                      metavar='HOST NAME')
+    (options, args) = parser.parse_args()
+
+    if not options.port:
+        parser.error('PORT is mandatory for running app')
+    # Run background task
+    # sio.start_background_task(background_task)
+
+    # Run app
+    web.run_app(app, host=options.host, path=options.path, port=options.port)
 
 

@@ -7,7 +7,7 @@
     <script type="text/javascript" charset="utf-8">
         $(document).ready(function(){
             namespace = '/test';
-            var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+            var socket = io.connect('https://' + document.domain + ':' + location.port + namespace);
 
             socket.on('connect', function() {
                 socket.emit('my event', {data: 'I\'m connected!'});
