@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+import argparse
 import logging
 import socketio
 
@@ -15,6 +18,10 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 ch.setFormatter(f)
 logger.addHandler(ch)
+
+parser = argparse.ArgumentParser(description="aiohttp server example")
+parser.add_argument('--path')
+parser.add_argument('--port')
 
 async def background_task():
     """Example of how to send server generated events to clients."""
@@ -92,7 +99,8 @@ app.router.add_get('/', index)
 
 
 if __name__ == '__main__':
+    args = parser.parse_args()
     sio.start_background_task(background_task)
-    web.run_app(app)
+    web.run_app(app, path=args.path, port=args.port)
 
 
