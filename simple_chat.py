@@ -5,7 +5,7 @@ import socketio
 from aiohttp import web
 from settings import logger, options
 
-sio = socketio.AsyncServer(async_mode='aiohttp')
+sio = socketio.AsyncServer(async_mode='aiohttp', allow_upgrades=True)
 app = web.Application()
 sio.attach(app)
 
@@ -26,6 +26,10 @@ async def index(request):
 
 @sio.on('my event', namespace='/test')
 async def test_message(sid, message):
+    # Added transport mode checker
+    # transport_mode = sio.transport(sid)
+    # logger.debug('MESSAGE TRANSPORT MODE (%s): %s' % (sid, transport_mode))
+
     await sio.emit('my response', {'data': message['data']}, room=sid)
     logger.debug('My EVENT (%s): %s' % (sid, message))
 
@@ -62,6 +66,10 @@ async def close(sid, message):
 
 @sio.on('my room event', namespace='/test')
 async def send_room_message(sid, message):
+    # Added transport mode checker
+    # transport_mode = sio.transport(sid)
+    # logger.debug('TRANSPORT MODE(%s): %s' % (sid, transport_mode))
+
     await sio.emit('my response', {'data': message['data']},
                    room=message['room'], namespace='/test')
     logger.debug('ROOM EVENT (%s): %s' % (sid, message))
@@ -75,6 +83,10 @@ async def disconnect_request(sid):
 
 @sio.on('connect', namespace='/test')
 async def test_connect(sid, environ):
+    # Added transport mode checker
+    # transport_mode = sio.transport(sid)
+    # logger.debug('CONNECT TRANSPORT MODE (%s): %s' % (sid, transport_mode))
+
     await sio.emit('my response', {'data': 'Connected', 'count': 0},
                    room=sid, namespace='/test')
     logger.debug('CONNECT USER: %s, ENVIRON: %s' % (sid, environ))
