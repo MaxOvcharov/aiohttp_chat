@@ -46,15 +46,18 @@ async def test_binary_message(sid):
     await sio.emit('file response',
                    {'data': contents, 'hash_sum': hash_sum},
                    room=sid,
+                   namespace='/test',
                    callback=call_back_from_client)
     logger.debug('My EVENT(FILE) (%s): %s' % (sid, contents[:20]))
     del contents
 
 
-def call_back_from_client(*args, **kvargs):
-    print(args)
-    print(kvargs)
-
+def call_back_from_client(*args, **kwargs):
+    for i in args:
+        logger.debug('my responce(CALL BACK_args) %s' % args[i]
+    for key, value in kwargs.items():
+        logger.debug('my responce(CALL BACK_kwargs) %s:%s' % (key, value)
+    
 
 @sio.on('message received', namespace='/test')
 async def test_message(sid, message):
