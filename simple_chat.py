@@ -43,9 +43,17 @@ async def test_binary_message(sid):
     async with aiofiles.open('test.png', mode='rb') as f:
         contents = await f.read()
     hash_sum = hashlib.md5(contents).hexdigest()
-    await sio.emit('file response', {'data': contents, 'hash_sum': hash_sum}, room=sid)
+    await sio.emit('file response',
+                   {'data': contents, 'hash_sum': hash_sum},
+                   room=sid,
+                   callback=call_back_from_client)
     logger.debug('My EVENT(FILE) (%s): %s' % (sid, contents[:20]))
     del contents
+
+
+def call_back_from_client(*args, **kvargs):
+    print(args)
+    print(kvargs)
 
 
 @sio.on('message received', namespace='/test')
