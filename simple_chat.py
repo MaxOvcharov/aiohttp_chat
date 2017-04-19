@@ -38,8 +38,8 @@ async def test_message(sid, message):
 
 
 def call_back_from_client(*args, **kwargs):
-    for i in args:
-        logger.debug('my responce(CALL BACK_args) %s' % args[i])
+    for arg in args:
+        logger.debug('my responce(CALL BACK_args) %s' % arg)
 
     for key, value in kwargs:
         logger.debug('my responce(CALL BACK_kwargs) %s:%s' % (key, value))
