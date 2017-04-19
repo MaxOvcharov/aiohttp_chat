@@ -23,26 +23,42 @@ async def background_task():
                        namespace='/test')
 
 async def index(request):
+    """
+    Simple client in web browser
+    :param request: request from page
+    :return: response app.html file
+    """
     with open('app.html') as f:
         return web.Response(text=f.read(), content_type='text/html')
 
 
 @sio.on('my event', namespace='/test')
 async def test_message(sid, message):
+    """
+    Custom event handler with event_name and
+    Socket.IO namespace for the event. This handler works like echo-server.
+    :param sid: Session ID of the client
+    :param message: message payload
+    :return: None
+    """
     # Added transport mode checker
     transport_mode = sio.transport(sid)
     logger.debug('MESSAGE TRANSPORT MODE (%s): %s' % (sid, transport_mode))
-
-    await sio.emit('my response', {'data': message['data']}, room=sid)
-    logger.debug('My EVENT (%s): %s' % (sid, message))
+    try:
+        await sio.emit('my response',
+                       {'data': message.get('data', 'Message should be dict: {"data": "some text"')},
+                       room=sid)
+        logger.debug('event: "my event"(ECHO), SID: %s Message: %s' % (sid, message))
+    except ValueError as e:
+        logger.error('Handle ERROR: %s' % e)
 
 
 def call_back_from_client(*args, **kwargs):
-    for i in args:
-        logger.debug('my responce(CALL BACK_args) %s' % args[i])
+    for arg in args:
+        logger.debug('my response(CALL BACK_args) %s' % arg)
 
     for key, value in kwargs:
-        logger.debug('my responce(CALL BACK_kwargs) %s:%s' % (key, value))
+        logger.debug('my response(CALL BACK_kwargs) %s:%s' % (key, value))
 
 
 @sio.on('file', namespace='/test')
