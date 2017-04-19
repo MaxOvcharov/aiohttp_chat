@@ -44,7 +44,7 @@ async def test_binary_message(sid):
         contents = await f.read()
     hash_sum = hashlib.md5(contents).hexdigest()
     await sio.emit('file response', {'data': contents, 'hash_sum': hash_sum}, room=sid)
-    logger.debug('My EVENT(FILE) (%s): %s' % (sid, contents))
+    logger.debug('My EVENT(FILE) (%s): %s' % (sid, contents[:20]))
     del contents
 
 
