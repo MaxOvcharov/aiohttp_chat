@@ -45,12 +45,17 @@ async def test_message(sid, message):
     transport_mode = sio.transport(sid)
     logger.debug('MESSAGE TRANSPORT MODE (%s): %s' % (sid, transport_mode))
     try:
-        await sio.emit('my response',
-                       {'data': message.get('data', 'Message should be dict: {"data": "some text"')},
-                       room=sid)
-        logger.debug('event: "my event"(ECHO), SID: %s Message: %s' % (sid, message))
+        if isinstance(message, dict):
+            await sio.emit('my response',
+                           {'data': message.get('data', 'Message should be dict: {"data": "some text"}')},
+                           room=sid)
+            logger.debug('event: "my event"(ECHO), SID: %s Message: %s' % (sid, message))
+        else:
+            raise TypeError('Message should be dict: {"data": "some text"}')
     except ValueError as e:
         logger.error('Handle ERROR: %s' % e)
+    except TypeError as e1:
+        logger.error('Handle ERROR: %s' % e1)
 
 
 def call_back_from_client(*args, **kwargs):
