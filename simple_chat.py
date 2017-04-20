@@ -3,6 +3,8 @@
 import socketio
 import aiofiles
 import hashlib
+import base64
+import gzip
 
 from aiohttp import web
 from settings import logger, options
@@ -48,7 +50,8 @@ async def test_message(sid, message):
         if isinstance(message, dict):
             await sio.emit('my response',
                            {'data': message.get('data', 'Message should be dict: {"data": "some text"}')},
-                           room=sid)
+                           room=sid,
+			   namespace='/test')
             logger.debug('event: "my event"(ECHO), SID: %s Message: %s' % (sid, message))
         else:
             raise TypeError('Message should be dict: {"data": "some text"}')
@@ -68,17 +71,18 @@ def call_back_from_client(*args, **kwargs):
 
 @sio.on('file', namespace='/test')
 async def test_binary_message(sid):
-    logger.debug('FILE: %s' % sid)
-    async with aiofiles.open('test.png', mode='rb') as f:
-        contents = await f.read()
-    hash_sum = hashlib.md5(contents).hexdigest()
+    async with aiofiles.open('test.png', mode='rb') as image_file:
+        content = await image_file.read()
+        gzip_file = gzip.compress(content)
+        content_b64 = base64.b64encode(gzip_file)
+        hash_sum = hashlib.md5(content_b64).hexdigest()
     await sio.emit('file response',
-                   {'data': contents, 'hash_sum': hash_sum},
+                   {'data': content_b64.decode('utf-8'), 'hash_sum': hash_sum},
                    room=sid,
                    namespace='/test',
                    callback=call_back_from_client)
-    logger.debug('My EVENT(FILE) (%s): %s' % (sid, contents[:20]))
-    del contents
+    logger.debug('My EVENT(FILE) (%s): %s' % (sid, content_b64[:20]))
+    del content_b64
 
 
 @sio.on('message received', namespace='/test')
