@@ -50,8 +50,7 @@ async def test_message(sid, message):
         if isinstance(message, dict):
             await sio.emit('my response',
                            {'data': message.get('data', 'Message should be dict: {"data": "some text"}')},
-                           room=sid,
-			   namespace='/test')
+                           room=sid, namespace='/test')
             logger.debug('event: "my event"(ECHO), SID: %s Message: %s' % (sid, message))
         else:
             raise TypeError('Message should be dict: {"data": "some text"}')
@@ -62,20 +61,39 @@ async def test_message(sid, message):
 
 
 def call_back_from_client(*args, **kwargs):
+    """
+    Handle callback from client with any parameters
+    :param args: positional arguments
+    :param kwargs: named arguments
+    :return: none
+    """
+
     for arg in args:
-        logger.debug('my response(CALL BACK_args) %s' % arg)
+        logger.debug('My EVENT(FILE CALLBACK - args) %s' % arg)
 
     for key, value in kwargs:
-        logger.debug('my response(CALL BACK_kwargs) %s:%s' % (key, value))
+        logger.debug('My EVENT(FILE CALLBACK - kwargs) %s:%s' % (key, value))
 
 
 @sio.on('file', namespace='/test')
 async def test_binary_message(sid):
-    async with aiofiles.open('test.png', mode='rb') as image_file:
-        content = await image_file.read()
-        gzip_file = gzip.compress(content)
-        content_b64 = base64.b64encode(gzip_file)
-        hash_sum = hashlib.md5(content_b64).hexdigest()
+    """
+    Custom event handler with event_name and
+    Socket.IO namespace for the event. This handler send
+    image file in base64 gzip.
+    :param sid: Session ID of the client
+    :return: emit file base64 gzip
+    """
+    content_b64 = ''
+    hash_sum = ''
+    try:
+        async with aiofiles.open('test.png', mode='rb') as image_file:
+            content = await image_file.read()
+            gzip_file = gzip.compress(content)
+            content_b64 = base64.b64encode(gzip_file)
+            hash_sum = hashlib.md5(content_b64).hexdigest()
+    except OSError as e:
+        logger.error('Handle ERROR: %s' % e)
     await sio.emit('file response',
                    {'data': content_b64.decode('utf-8'), 'hash_sum': hash_sum},
                    room=sid,
