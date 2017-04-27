@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import socketio
-import aiofiles
-import hashlib
 import base64
 import gzip
+import hashlib
 
+import aiofiles
+import socketio
 from aiohttp import web
-from settings import logger, options
+
+from aiohttp_chat.settings import logger, options
 
 sio = socketio.AsyncServer(async_mode='aiohttp',
                            allow_upgrades=True)
@@ -30,7 +31,7 @@ async def index(request):
     :param request: request from page
     :return: response app.html file
     """
-    with open('app.html') as f:
+    with open('templates/app.html') as f:
         return web.Response(text=f.read(), content_type='text/html')
 
 
@@ -87,7 +88,7 @@ async def test_binary_message(sid):
     content_b64 = ''
     hash_sum = ''
     try:
-        async with aiofiles.open('test.png', mode='rb') as image_file:
+        async with aiofiles.open('static/test.png', mode='rb') as image_file:
             content = await image_file.read()
             gzip_file = gzip.compress(content)
             content_b64 = base64.b64encode(gzip_file)

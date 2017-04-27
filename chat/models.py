@@ -1,13 +1,16 @@
 # import sqlalchemy as sa
 import uuid
 
-
 from sqlalchemy import MetaData
 from sqlalchemy import ForeignKey
 from sqlalchemy import Table, Column
 from sqlalchemy import Integer, String, Text, Boolean
 from sqlalchemy.types import TypeDecorator, CHAR
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSON
+
+
+__all__ = ['users', 'unknown_users', 'users_to_unknown_users',
+           'private_history', 'public_history']
 
 metadata = MetaData()
 
@@ -46,8 +49,8 @@ class GUID(TypeDecorator):
 
 users = Table('users', metadata,
               Column('id', Integer, primary_key=True),
-              Column('login', String(255)),
-              Column('password', Text),
+              Column('login', String(255), nullable=False),
+              Column('password', Text, nullable=False),
               Column('user_id', GUID(), default=uuid.uuid4, nullable=False, unique=True),
               )
 
@@ -55,10 +58,24 @@ unknown_users = Table('unknown_users', metadata,
                       Column('id', Integer, primary_key=True),
                       Column('session_id', GUID(), default=uuid.uuid4, nullable=False, unique=True),)
 
-# unknown_users = Table('unknown_users', metadata,
-#                       Column('id', Integer, primary_key=True),
-#                       Column('user_id', None, ForeignKey('users.id')),
-#                       Column('email', String(255), nullable=False),
-#                       Column('private', Boolean, nullable=False))
+
+users_to_unknown_users = Table('users_to_unknown_users', metadata,
+                               Column('user_id', Integer, ForeignKey('users.id', ondelete='CASCADE')),
+                               Column('user_id', Integer, ForeignKey('unknown_users.id', ondelete='CASCADE')))
+
+private_history = Table('private_history', metadata,
+                        Column('id', Integer, primary_key=True),
+                        Column('message_id', Integer, nullable=True),
+                        Column('message_json', JSON, server_default='{}'),
+                        Column('user_id', GUID(), ForeignKey('users.user_id')),
+                        Column('chat_id', String, nullable=False))
+
+public_history = Table('public_history', metadata,
+                       Column('id', Integer, primary_key=True),
+                       Column('message_id', Integer, nullable=True),
+                       Column('message_json', JSON, server_default='{}'),
+                       Column('unknown_user_id', GUID(), ForeignKey('unknown_users.session_id')),
+                       Column('chat_id', String, nullable=False))
+
 
 
