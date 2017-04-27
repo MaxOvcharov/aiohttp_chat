@@ -8,7 +8,9 @@ import aiofiles
 import socketio
 from aiohttp import web
 
-from aiohttp_chat.settings import logger, options
+from settings import logger, options
+#from ..settings import logger, options
+
 
 sio = socketio.AsyncServer(async_mode='aiohttp',
                            allow_upgrades=True)
