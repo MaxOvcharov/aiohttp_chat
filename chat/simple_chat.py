@@ -52,7 +52,7 @@ async def init(loop):
                 await sio.emit('my response',
                                {'data': message.get('data', 'Message should be dict: {"data": "some text"}')},
                                room=sid, namespace='/test')
-                logger.debug('event: "my event"(ECHO), SID: %s Message: %s' % (sid, message))
+                logger.debug('EVENT: "my event"(ECHO), SID: %s Message: %s' % (sid, message))
             else:
                 raise TypeError('Message should be dict: {"data": "some text"}')
         except ValueError as e:
@@ -162,7 +162,8 @@ async def init(loop):
         logger.debug('DISCONNECT USER: %s' % sid)
 
     # setup views and routes
-    app.router.add_static('/static', 'static')
+    #app.router.add_static('/static', 'static')
+    app.router.add_static('/static', os.path.join(BASE_DIR, "chat/static/"))
     app.router.add_get('/', index)
     return app
 
