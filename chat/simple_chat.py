@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
-
+import asyncio
 import base64
 import gzip
 import hashlib
+import pathlib
 
 import aiofiles
 import socketio
 from aiohttp import web
 
-from settings import logger, options
-#from ..settings import logger, options
+from chat.settings import logger, options
+from chat.utils import load_config
+from chat.models import setup_pg
 
+PROJ_ROOT = pathlib.Path(__file__).parent.parent
+TEMPLATES_ROOT = pathlib.Path(__file__).parent / 'templates'
 
-sio = socketio.AsyncServer(async_mode='aiohttp',
-                           allow_upgrades=True)
-app = web.Application()
-sio.attach(app)
-
+global sio
 
 async def background_task():
     """Example of how to send server generated events to clients."""
@@ -33,7 +33,7 @@ async def index(request):
     :param request: request from page
     :return: response app.html file
     """
-    with open('templates/app.html') as f:
+    with open(str(PROJ_ROOT / 'templates' / 'app.html')) as f:
         return web.Response(text=f.read(), content_type='text/html')
 
 
@@ -174,15 +174,32 @@ async def test_connect(sid, environ):
 def test_disconnect(sid):
     logger.debug('DISCONNECT USER: %s' % sid)
 
-app.router.add_static('/static', 'static')
-app.router.add_get('/', index)
 
-if __name__ == '__main__':
+async def init(loop):
+    # load config from yaml file
+    conf = load_config(str(PROJ_ROOT / 'config' / 'dev.yml'))
 
+    # setup application and extensions
+    sio = socketio.AsyncServer(async_mode='aiohttp',
+                               allow_upgrades=True)
+    app = web.Application(loop=loop)
+    sio.attach(app)
+    pg = await setup_pg(app, conf, loop)
+
+    # setup views and routes
+    app.router.add_static('/static', path=str(PROJ_ROOT / 'static'))
+    app.router.add_get('/', index)
+    return app
+
+
+def main():
     # Run background task
     # sio.start_background_task(background_task)
-
+    loop = asyncio.get_event_loop()
+    app = loop.run_until_complete(init(loop))
     # Run app
     web.run_app(app, host=options.host, path=options.path, port=options.port)
 
 
+if __name__ == '__main__':
+    main()

@@ -39,7 +39,7 @@ if not options.port:
     parser.error('PORT is mandatory for running app')
 
 
-try:
-    from aiohttp_chat.local_settings import *
-except ImportError:
-    pass
+# try:
+#     from aiohttp_chat.local_settings import *
+# except ImportError:
+#     pass

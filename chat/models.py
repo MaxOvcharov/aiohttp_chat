@@ -1,6 +1,8 @@
 # import sqlalchemy as sa
+import os
 import uuid
 
+import aiopg.sa
 from sqlalchemy import MetaData
 from sqlalchemy import ForeignKey
 from sqlalchemy import Table, Column
@@ -78,4 +80,26 @@ public_history = Table('public_history', metadata,
                        Column('chat_id', String, nullable=False))
 
 
+async def setup_pg(app, conf, loop):
+    # create connection to the database
+    pg = await init_postgres(conf['postgres'], loop)
 
+    async def close_pg(app):
+        pg.close()
+        await pg.wait_closed()
+
+    app.on_cleanup.append(close_pg)
+    return pg
+
+
+async def init_postgres(conf, loop):
+    engine = await aiopg.sa.create_engine(
+        database=conf['database'],
+        user=conf['user'],
+        password=conf['password'],
+        host=conf['host'],
+        port=conf['port'],
+        minsize=conf['minsize'],
+        maxsize=conf['maxsize'],
+        loop=loop)
+    return engine
