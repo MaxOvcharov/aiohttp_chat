@@ -1,5 +1,9 @@
+import os
 import logging
+
 from optparse import OptionParser
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 #############################################
 #                                           #

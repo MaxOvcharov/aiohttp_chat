@@ -1,5 +1,4 @@
-# import sqlalchemy as sa
-import os
+# -*- coding: utf-8 -*-
 import uuid
 
 import aiopg.sa
@@ -12,7 +11,8 @@ from sqlalchemy.dialects.postgresql import UUID, JSON
 
 
 __all__ = ['users', 'unknown_users', 'users_to_unknown_users',
-           'private_history', 'public_history']
+           'private_history', 'public_history',
+           'setup_pg', 'init_postgres']
 
 metadata = MetaData()
 
