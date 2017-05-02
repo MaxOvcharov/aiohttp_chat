@@ -11,8 +11,8 @@ from sqlalchemy.dialects.postgresql import UUID, JSON
 
 
 __all__ = ['users', 'unknown_users', 'users_to_unknown_users',
-           'private_history', 'public_history',
-           'setup_pg', 'init_postgres']
+           'private_history', 'public_history',]
+           # 'setup_pg', 'init_postgres']
 
 metadata = MetaData()
 
@@ -63,7 +63,7 @@ unknown_users = Table('unknown_users', metadata,
 
 users_to_unknown_users = Table('users_to_unknown_users', metadata,
                                Column('user_id', Integer, ForeignKey('users.id', ondelete='CASCADE')),
-                               Column('user_id', Integer, ForeignKey('unknown_users.id', ondelete='CASCADE')))
+                               Column('unknown_users_id', Integer, ForeignKey('unknown_users.id', ondelete='CASCADE')))
 
 private_history = Table('private_history', metadata,
                         Column('id', Integer, primary_key=True),
@@ -94,12 +94,12 @@ async def setup_pg(app, conf, loop):
 
 async def init_postgres(conf, loop):
     engine = await aiopg.sa.create_engine(
-        database=conf['database'],
-        user=conf['user'],
-        password=conf['password'],
-        host=conf['host'],
-        port=conf['port'],
-        minsize=conf['minsize'],
-        maxsize=conf['maxsize'],
+        database=conf['postgres']['database'],
+        user=conf['postgres']['user'],
+        password=conf['postgres']['password'],
+        host=conf['postgres']['host'],
+        port=conf['postgres']['port'],
+        minsize=conf['postgres']['minsize'],
+        maxsize=conf['postgres']['maxsize'],
         loop=loop)
     return engine
