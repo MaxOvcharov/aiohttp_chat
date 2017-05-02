@@ -5,7 +5,7 @@ import hashlib
 import os
 import socketio
 from aiohttp import web
-from aiohttp_chat.settings import set_logger, BASE_DIR
+from settings import set_logger, BASE_DIR
 
 # setup application and extensions
 sio = socketio.AsyncServer(async_mode='aiohttp',

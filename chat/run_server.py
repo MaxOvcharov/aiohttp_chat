@@ -6,7 +6,7 @@ from aiohttp import web
 
 from chat import sio, index
 from models import setup_pg
-from aiohttp_chat.settings import set_logger, BASE_DIR, parse_args
+from settings import set_logger, BASE_DIR, parse_args
 from utils import load_config
 
 logger = set_logger()
