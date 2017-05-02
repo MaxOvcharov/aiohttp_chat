@@ -1,16 +1,20 @@
 import aiofiles
 import base64
 import gzip
+import json
 import hashlib
 import os
 import socketio
+
 from aiohttp import web
 from settings import set_logger, BASE_DIR
-
+from run_server import pg
+from models import users, private_history
 # setup application and extensions
 sio = socketio.AsyncServer(async_mode='aiohttp',
                            allow_upgrades=True)
 
+# setup logger for app
 logger = set_logger()
 
 
@@ -22,6 +26,21 @@ async def index(request):
     """
     with open(os.path.join(BASE_DIR, "chat/templates/app.html")) as f:
         return web.Response(text=f.read(), content_type='text/html')
+
+
+def call_back_from_client(self, *args, **kwargs):
+    """
+    Handle callback from client with any parameters
+    :param args: positional arguments
+    :param kwargs: named arguments
+    :return: none
+    """
+
+    for arg in args:
+        logger.debug('My EVENT(FILE CALLBACK - args) %s' % arg)
+
+    for key, value in kwargs:
+        logger.debug('My EVENT(FILE CALLBACK - kwargs) %s:%s' % (key, value))
 
 
 @sio.on('my event', namespace='/test')
@@ -41,6 +60,15 @@ async def test_message(sid, message):
             await sio.emit('my response',
                            {'data': message.get('data', 'Message should be dict: {"data": "some text"}')},
                            room=sid, namespace='/test')
+            async with pg.begin():
+                uid = await pg.scalar(users.insert().values(login='max12', password='121212'))
+                await pg.excute(private_history.
+                                insert().
+                                values(message_id=1,
+                                       message_json=json.dump(
+                                           {'test': message.get('data','Wrong data was sent')}),
+                                       user_id=uid,
+                                       chat_id='test_chat'))
             logger.debug('EVENT: "my event"(ECHO), SID: %s Message: %s' % (sid, message))
         else:
             raise TypeError('Message should be dict: {"data": "some text"}')
@@ -48,21 +76,6 @@ async def test_message(sid, message):
         logger.error('Handle ERROR: %s' % e)
     except TypeError as e1:
         logger.error('Handle ERROR: %s' % e1)
-
-
-def call_back_from_client(*args, **kwargs):
-    """
-    Handle callback from client with any parameters
-    :param args: positional arguments
-    :param kwargs: named arguments
-    :return: none
-    """
-
-    for arg in args:
-        logger.debug('My EVENT(FILE CALLBACK - args) %s' % arg)
-
-    for key, value in kwargs:
-        logger.debug('My EVENT(FILE CALLBACK - kwargs) %s:%s' % (key, value))
 
 
 @sio.on('file', namespace='/test')

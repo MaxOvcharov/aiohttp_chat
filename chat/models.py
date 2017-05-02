@@ -11,8 +11,7 @@ from sqlalchemy.dialects.postgresql import UUID, JSON
 
 
 __all__ = ['users', 'unknown_users', 'users_to_unknown_users',
-           'private_history', 'public_history',]
-           # 'setup_pg', 'init_postgres']
+           'private_history', 'public_history']
 
 metadata = MetaData()
 
@@ -69,7 +68,7 @@ private_history = Table('private_history', metadata,
                         Column('id', Integer, primary_key=True),
                         Column('message_id', Integer, nullable=True),
                         Column('message_json', JSON, server_default='{}'),
-                        Column('user_id', GUID(), ForeignKey('users.user_id')),
+                        Column('user_id', Integer, ForeignKey('users.id')),
                         Column('chat_id', String, nullable=False))
 
 public_history = Table('public_history', metadata,
@@ -103,3 +102,14 @@ async def init_postgres(conf, loop):
         maxsize=conf['maxsize'],
         loop=loop)
     return engine
+#
+#
+# def crete_engine_pg(conf):
+#     yield from aiopg.sa.create_engine(
+#         database=conf['database'],
+#         user=conf['user'],
+#         password=conf['password'],
+#         host=conf['host'],
+#         port=conf['port'],
+#         minsize=conf['minsize'],
+#         maxsize=conf['maxsize'],)
