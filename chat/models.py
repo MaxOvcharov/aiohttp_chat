@@ -94,12 +94,12 @@ async def setup_pg(app, conf, loop):
 
 async def init_postgres(conf, loop):
     engine = await aiopg.sa.create_engine(
-        database=conf['postgres']['database'],
-        user=conf['postgres']['user'],
-        password=conf['postgres']['password'],
-        host=conf['postgres']['host'],
-        port=conf['postgres']['port'],
-        minsize=conf['postgres']['minsize'],
-        maxsize=conf['postgres']['maxsize'],
+        database=conf['database'],
+        user=conf['user'],
+        password=conf['password'],
+        host=conf['host'],
+        port=conf['port'],
+        minsize=conf['minsize'],
+        maxsize=conf['maxsize'],
         loop=loop)
     return engine

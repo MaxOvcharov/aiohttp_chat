@@ -48,7 +48,7 @@ async def init(loop):
     logger.debug('DB_START: start uploading new version of tables')
     # load config from yaml file
     conf = load_config(os.path.join(BASE_DIR, "config/dev.yml"))
-    pg = await models.init_postgres(conf, loop)
+    pg = await models.init_postgres(conf['postgres'], loop)
     await prepare_table(pg)
     logger.debug('DB_END: All tables was uploaded successfully')
 
