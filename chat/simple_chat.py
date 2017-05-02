@@ -10,9 +10,10 @@ import socketio
 from aiohttp import web
 
 from models import setup_pg
-from settings import logger, options, BASE_DIR
+from settings import set_logger, BASE_DIR, parse_args
 from utils import load_config
 
+logger = set_logger()
 
 async def index(request):
     """
@@ -169,7 +170,7 @@ async def init(loop):
 
 
 def main():
-    sio = ''
+    options = parse_args()
     # Run background task
     # sio.start_background_task(background_task)
     loop = asyncio.get_event_loop()
