@@ -33,7 +33,8 @@ def parse_args():
     parser = OptionParser()
     parser.add_option('--path', dest='path',
                       help='PATH TO UNIX SOCKET',
-                      metavar='PATH TO UNIX SOCKET')
+                      metavar='PATH TO UNIX SOCKET',
+                      default=None)
     parser.add_option('--port', dest='port', type='int',
                       help='PORT FOR HTTP CONNECTION',
                       metavar='PORT FOR HTTP CONNECTION')
