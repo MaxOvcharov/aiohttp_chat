@@ -52,13 +52,13 @@ async def run_chat(conn):
                                room=sid, namespace='/test')
                 async with conn.begin():
                     uid = await conn.scalar(users.insert().values(login='max12', password='121212'))
-                    await conn.excute(private_history.
-                                      insert().
-                                      values(message_id=1,
-                                             message_json=json.dump(
-                                                 {'test': message.get('data', 'Wrong data was sent')}),
-                                             user_id=uid,
-                                             chat_id='test_chat'))
+                    await conn.execute(private_history.
+                                       insert().
+                                       values(message_id=1,
+                                              message_json=json.dump(
+                                                  {'test': message.get('data', 'Wrong data was sent')}),
+                                              user_id=uid,
+                                              chat_id='test_chat'))
                 logger.debug('EVENT: "my event"(ECHO), SID: %s Message: %s' % (sid, message))
             else:
                 raise TypeError('Message should be dict: {"data": "some text"}')
