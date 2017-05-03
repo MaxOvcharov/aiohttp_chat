@@ -26,7 +26,9 @@ async def init(loop):
 
     # Attach app to the Socket.io server
     sio.attach(app)
-    await  run_chat(pg)
+    async with pg:
+        async with pg.acquier() as conn:
+            await  run_chat(conn)
     # setup views and routes
     app.router.add_static('/static', os.path.join(BASE_DIR, "chat/static/"))
     app.router.add_get('/', index)
