@@ -1,16 +1,23 @@
 # -*- coding: utf-8 -*-
+import socketio
 import asyncio
 import os
 
 from aiohttp import web
 
-from chat import sio, index
-from settings import set_logger, BASE_DIR, parse_args
-
 from models import setup_pg
+from settings import set_logger, BASE_DIR, parse_args
 from utils import load_config
+from views import index
 
+# setup logger for app
 logger = set_logger()
+
+# setup application and extensions
+sio = socketio.AsyncServer(async_mode='aiohttp',
+                           allow_upgrades=True)
+
+# Setup GLOBAL var
 pg = ''
 
 async def init(loop):

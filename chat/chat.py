@@ -3,32 +3,16 @@ import base64
 import gzip
 import json
 import hashlib
-import os
-import socketio
 
-from aiohttp import web
-from settings import set_logger, BASE_DIR
-from run_server import pg
+from run_server import sio, pg
+from settings import set_logger
 from models import users, private_history
-# setup application and extensions
-sio = socketio.AsyncServer(async_mode='aiohttp',
-                           allow_upgrades=True)
 
 # setup logger for app
 logger = set_logger()
 
 
-async def index(request):
-    """
-    Simple client in web browser
-    :param request: request from page
-    :return: response app.html file
-    """
-    with open(os.path.join(BASE_DIR, "chat/templates/app.html")) as f:
-        return web.Response(text=f.read(), content_type='text/html')
-
-
-def call_back_from_client(self, *args, **kwargs):
+def call_back_from_client(*args, **kwargs):
     """
     Handle callback from client with any parameters
     :param args: positional arguments
