@@ -6,8 +6,3 @@ def load_config(fname):
         data = yaml.load(f)
     # TODO: add config validation
     return data
-
-
-def init_pg():
-    global pg
-    pg = ''

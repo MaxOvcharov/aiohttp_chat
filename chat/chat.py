@@ -5,7 +5,7 @@ import json
 import hashlib
 import socketio
 
-from run_server import pg
+# from run_server import pg
 from settings import set_logger
 from models import users, private_history
 
@@ -16,6 +16,7 @@ logger = set_logger()
 sio = socketio.AsyncServer(async_mode='aiohttp',
                            allow_upgrades=True)
 
+from run_server import pg
 
 def call_back_from_client(*args, **kwargs):
     """
