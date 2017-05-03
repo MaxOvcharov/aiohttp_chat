@@ -4,7 +4,7 @@ import os
 
 from aiohttp import web
 
-from chat import sio, run_chat
+# from chat import sio, run_chat
 from models import setup_pg
 from settings import set_logger, BASE_DIR, parse_args
 from utils import load_config
@@ -12,10 +12,10 @@ from views import index
 
 # setup logger for app
 logger = set_logger()
-
+pg = None
 
 async def init(loop):
-    # global pg
+    global pg
     app = web.Application(loop=loop)
 
     # load config from yaml file
@@ -23,9 +23,9 @@ async def init(loop):
     pg = await setup_pg(app, conf, loop)
 
     # Attach app to the Socket.io server
+    from chat import sio
     sio.attach(app)
-    # async with pg.acquire() as conn:
-    await run_chat(pg)
+    # await run_chat(pg)
     # setup views and routes
     app.router.add_static('/static', os.path.join(BASE_DIR, "chat/static/"))
     app.router.add_get('/', index)
