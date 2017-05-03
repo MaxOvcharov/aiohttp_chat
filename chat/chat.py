@@ -52,6 +52,7 @@ async def run_chat(pg):
                 async with pg.acquire() as conn:
                     async with conn.begin():
                         uid = await conn.scalar(users.insert().values(login='max12', password='121212'))
+                        logger.debug('TEST DB CONNECT')
                         await conn.execute(private_history.
                                            insert().
                                            values(message_id=1,
