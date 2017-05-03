@@ -13,8 +13,6 @@ from views import index
 # setup logger for app
 logger = set_logger()
 
-# Setup GLOBAL var
-# pg = ''
 
 async def init(loop):
     # global pg
@@ -26,8 +24,8 @@ async def init(loop):
 
     # Attach app to the Socket.io server
     sio.attach(app)
-    async with pg.acquire() as conn:
-        await  run_chat(conn)
+    # async with pg.acquire() as conn:
+    await run_chat(pg)
     # setup views and routes
     app.router.add_static('/static', os.path.join(BASE_DIR, "chat/static/"))
     app.router.add_get('/', index)

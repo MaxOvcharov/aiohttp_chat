@@ -16,7 +16,7 @@ logger = set_logger()
 sio = socketio.AsyncServer(async_mode='aiohttp',
                            allow_upgrades=True)
 
-async def run_chat(conn):
+async def run_chat(pg):
 
     def call_back_from_client(*args, **kwargs):
         """
@@ -49,15 +49,16 @@ async def run_chat(conn):
                 await sio.emit('my response',
                                {'data': message.get('data', 'Message should be dict: {"data": "some text"}')},
                                room=sid, namespace='/test')
-                async with conn.begin():
-                    uid = await conn.scalar(users.insert().values(login='max12', password='121212'))
-                    await conn.execute(private_history.
-                                       insert().
-                                       values(message_id=1,
-                                              message_json=json.dumps(
-                                                  {'test': message.get('data', 'Wrong data was sent')}),
-                                              user_id=uid,
-                                              chat_id='test_chat'))
+                async with pg.acquire() as conn:
+                    async with conn.begin():
+                        uid = await conn.scalar(users.insert().values(login='max12', password='121212'))
+                        await conn.execute(private_history.
+                                           insert().
+                                           values(message_id=1,
+                                                  message_json=json.dumps(
+                                                      {'test': message.get('data', 'Wrong data was sent')}),
+                                                  user_id=uid,
+                                                  chat_id='test_chat'))
                 logger.debug('EVENT: "my event"(ECHO), SID: %s Message: %s' % (sid, message))
             else:
                 raise TypeError('Message should be dict: {"data": "some text"}')
