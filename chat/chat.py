@@ -3,13 +3,18 @@ import base64
 import gzip
 import json
 import hashlib
+import socketio
 
-from run_server import sio, pg
+from run_server import pg
 from settings import set_logger
 from models import users, private_history
 
 # setup logger for app
 logger = set_logger()
+
+# setup application and extensions
+sio = socketio.AsyncServer(async_mode='aiohttp',
+                           allow_upgrades=True)
 
 
 def call_back_from_client(*args, **kwargs):
