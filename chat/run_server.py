@@ -25,8 +25,6 @@ async def init(loop):
     pg = await setup_pg(app, conf, loop)
 
     # Attach app to the Socket.io server
-    from chat import sio
-    sio.attach(app)
 
     # setup views and routes
     app.router.add_static('/static', os.path.join(BASE_DIR, "chat/static/"))
@@ -41,6 +39,8 @@ def main():
     loop = asyncio.get_event_loop()
     app = loop.run_until_complete(init(loop))
     # Run app
+    from chat import sio
+    sio.attach(app)
     web.run_app(app, host=options.host, path=options.path, port=options.port)
 
 if __name__ == '__main__':
