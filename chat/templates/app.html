@@ -10,11 +10,13 @@
             var socket = io.connect('https://' + document.domain + ':' + location.port + namespace);
 
             socket.on('connect', function() {
-                socket.emit('my event', {data: 'I\'m connected!'});
+                socket.emit('sendMessage', {data: 'I\'m connected!'});
             });
             socket.on('disconnect', function() {
                 $('#log').append('<br>Disconnected');
             });
+            socket.on('sendMessageResponse', function(msg) {
+                $('#log').append('<br>Received private message: ' + msg.data);
             socket.on('my response', function(msg) {
                 $('#log').append('<br>Received: ' + msg.data);
             });
@@ -25,6 +27,7 @@
             // these send data to the server in a variety of ways
             $('form#emit').submit(function(event) {
                 socket.emit('sendMessage', {data: $('#emit_data').val()});
+                $('#log').append('<br>Send private message: ' + $('#emit_data').val());
                 return false;
             });
             $('form#broadcast').submit(function(event) {
@@ -59,7 +62,7 @@
     <h2>Send:</h2>
     <form id="emit" method="POST" action='#'>
         <input type="text" name="emit_data" id="emit_data" placeholder="Message">
-        <input type="submit" value="Echo">
+        <input type="submit" value="Send private message">
     </form>
     <form id="broadcast" method="POST" action='#'>
         <input type="text" name="broadcast_data" id="broadcast_data" placeholder="Message">
