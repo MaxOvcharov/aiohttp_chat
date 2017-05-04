@@ -28,8 +28,8 @@ def call_back_from_client(*args, **kwargs):
         logger.debug('My EVENT(FILE CALLBACK - kwargs) %s:%s' % (key, value))
 
 
-@sio.on('my event', namespace='/test')
-async def test_message(sid, message):
+@sio.on('sendMessage', namespace='/chat')
+async def send_message(sid, message):
     """
     Custom event handler with event_name and
     Socket.IO namespace for the event. This handler works like echo-server.
@@ -44,7 +44,7 @@ async def test_message(sid, message):
         if isinstance(message, dict):
             await sio.emit('my response',
                            {'data': message.get('data', 'Message should be dict: {"data": "some text"}')},
-                           room=sid, namespace='/test')
+                           room=sid, namespace='/chat')
             async with sio.pg.acquire() as conn:
                 async with conn.begin():
                     uid = await conn.scalar(users.insert().values(login='max12', password='121212'))
@@ -64,8 +64,8 @@ async def test_message(sid, message):
         logger.error('Handle ERROR: %s' % e1)
 
 
-@sio.on('file', namespace='/test')
-async def test_binary_message(sid):
+@sio.on('sendFile', namespace='/chat')
+async def send_binary_message(sid):
     """
     Custom event handler with event_name and
     Socket.IO namespace for the event. This handler send
@@ -86,76 +86,72 @@ async def test_binary_message(sid):
     await sio.emit('file response',
                    {'data': content_b64.decode('utf-8'), 'hash_sum': hash_sum},
                    room=sid,
-                   namespace='/test',
+                   namespace='/chat',
                    callback=call_back_from_client)
     logger.debug('My EVENT(FILE) (%s): %s' % (sid, content_b64[:20]))
     del content_b64
 
 
-@sio.on('message received', namespace='/test')
-async def test_message(sid, message):
+@sio.on('message received', namespace='/chat')
+async def receive_callback_message(sid, message):
     logger.debug('My EVENT(CALL BACK) (%s): %s' % (sid, message))
     return True
 
 
-@sio.on('my broadcast event', namespace='/test')
+@sio.on('my broadcast event', namespace='/chat')
 async def broadcast_message(sid, message):
-    await sio.emit('my response', {'data': message['data']}, namespace='/test')
+    await sio.emit('my response', {'data': message['data']}, namespace='/chat')
     logger.debug('BROADCAST MESSAGE(%s): %s' % (sid, message))
 
 
-@sio.on('join', namespace='/test')
-async def join(sid, message):
-    sio.enter_room(sid, message['room'], namespace='/test')
+@sio.on('join', namespace='/chat')
+async def join_room(sid, message):
+    sio.enter_room(sid, message['room'], namespace='/chat')
     await sio.emit('my response', {'data': 'Entered room: ' + message['room']},
-                   room=sid, namespace='/test')
+                   room=sid, namespace='/chat')
     logger.debug('JOIN ROOM (%s): %s' % (sid, message))
 
 
-@sio.on('leave', namespace='/test')
-async def leave(sid, message):
-    sio.leave_room(sid, message['room'], namespace='/test')
+@sio.on('leave', namespace='/chat')
+async def leave_room(sid, message):
+    sio.leave_room(sid, message['room'], namespace='/chat')
     await sio.emit('my response', {'data': 'Left room: ' + message['room']},
-                   room=sid, namespace='/test')
+                   room=sid, namespace='/chat')
     logger.debug('LEAVE ROOM (%s): %s' % (sid, message))
 
 
-@sio.on('close room', namespace='/test')
+@sio.on('close room', namespace='/chat')
 async def close(sid, message):
     await sio.emit('my response', {'data': 'Room %s is closing' % message['room']},
-                   room=message['room'], namespace='/test')
-    await sio.close_room(message['room'], namespace='/test')
+                   room=message['room'], namespace='/chat')
+    await sio.close_room(message['room'], namespace='/chat')
     logger.debug('CLOSE ROOM (%s): %s' % (sid, message))
 
 
-@sio.on('my room event', namespace='/test')
+@sio.on('my room event', namespace='/chat')
 async def send_room_message(sid, message):
-    # Added transport mode checker
-    # transport_mode = sio.transport(sid)
-    # logger.debug('TRANSPORT MODE(%s): %s' % (sid, transport_mode))
-
     await sio.emit('my response', {'data': message['data']},
-                   room=message['room'], namespace='/test')
+                   room=message['room'], namespace='/chat')
     logger.debug('ROOM EVENT (%s): %s' % (sid, message))
 
 
-@sio.on('disconnect request', namespace='/test')
+@sio.on('disconnect request', namespace='/chat')
 async def disconnect_request(sid):
-    await sio.disconnect(sid, namespace='/test')
+    await sio.disconnect(sid, namespace='/chat')
     logger.debug('DISCONNECT REQUEST: %s' % sid)
 
 
-@sio.on('connect', namespace='/test')
+@sio.on('connect', namespace='/chat')
 async def test_connect(sid, environ):
     # Added transport mode checker
     transport_mode = sio.transport(sid)
     logger.debug('CONNECT TRANSPORT MODE (%s): %s' % (sid, transport_mode))
 
     await sio.emit('my response', {'data': 'Connected', 'count': 0},
-                   room=sid, namespace='/test')
+                   room=sid, namespace='/chat')
     logger.debug('CONNECT USER: %s, ENVIRON: %s' % (sid, environ))
 
 
-@sio.on('disconnect', namespace='/test')
+@sio.on('disconnect', namespace='/chat')
 def test_disconnect(sid):
     logger.debug('DISCONNECT USER: %s' % sid)
