@@ -55,7 +55,7 @@ async def send_message(sid, message):
                                                   {'test': message.get('data', 'Wrong data was sent')}),
                                               user_id=uid,
                                               chat_id='test_chat'))
-            logger.debug('EVENT: "my event"(ECHO), SID: %s Message: %s' % (sid, message))
+            logger.debug('EVENT: "sendMessage"(ECHO), SID: %s Message: %s' % (sid, message))
         else:
             raise TypeError('Message should be dict: {"data": "some text"}')
     except ValueError as e:

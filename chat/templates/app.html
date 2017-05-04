@@ -15,7 +15,7 @@
             socket.on('disconnect', function() {
                 $('#log').append('<br>Disconnected');
             });
-            socket.on('sendMessage', function(msg) {
+            socket.on('my response', function(msg) {
                 $('#log').append('<br>Received: ' + msg.data);
             });
 
@@ -24,7 +24,7 @@
             // handlers for the different forms in the page
             // these send data to the server in a variety of ways
             $('form#emit').submit(function(event) {
-                socket.emit('my event', {data: $('#emit_data').val()});
+                socket.emit('sendMessage', {data: $('#emit_data').val()});
                 return false;
             });
             $('form#broadcast').submit(function(event) {
