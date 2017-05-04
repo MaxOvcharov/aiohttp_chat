@@ -17,6 +17,7 @@
             });
             socket.on('sendMessageResponse', function(msg) {
                 $('#log').append('<br>Received private message: ' + msg.data);
+            });
             socket.on('my response', function(msg) {
                 $('#log').append('<br>Received: ' + msg.data);
             });
