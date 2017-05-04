@@ -5,17 +5,13 @@ import json
 import hashlib
 import socketio
 
-from settings import set_logger
+from settings import logger
 from models import users, private_history
-
-# setup logger for app
-logger = set_logger()
 
 # setup application and extensions
 sio = socketio.AsyncServer(async_mode='aiohttp',
                            allow_upgrades=True)
-# from run_server import pg
-# async def run_chat(pg):
+
 
 def call_back_from_client(*args, **kwargs):
     """
@@ -30,6 +26,7 @@ def call_back_from_client(*args, **kwargs):
 
     for key, value in kwargs:
         logger.debug('My EVENT(FILE CALLBACK - kwargs) %s:%s' % (key, value))
+
 
 @sio.on('my event', namespace='/test')
 async def test_message(sid, message):
@@ -66,6 +63,7 @@ async def test_message(sid, message):
     except TypeError as e1:
         logger.error('Handle ERROR: %s' % e1)
 
+
 @sio.on('file', namespace='/test')
 async def test_binary_message(sid):
     """
@@ -93,15 +91,18 @@ async def test_binary_message(sid):
     logger.debug('My EVENT(FILE) (%s): %s' % (sid, content_b64[:20]))
     del content_b64
 
+
 @sio.on('message received', namespace='/test')
 async def test_message(sid, message):
     logger.debug('My EVENT(CALL BACK) (%s): %s' % (sid, message))
     return True
 
+
 @sio.on('my broadcast event', namespace='/test')
 async def broadcast_message(sid, message):
     await sio.emit('my response', {'data': message['data']}, namespace='/test')
     logger.debug('BROADCAST MESSAGE(%s): %s' % (sid, message))
+
 
 @sio.on('join', namespace='/test')
 async def join(sid, message):
@@ -110,6 +111,7 @@ async def join(sid, message):
                    room=sid, namespace='/test')
     logger.debug('JOIN ROOM (%s): %s' % (sid, message))
 
+
 @sio.on('leave', namespace='/test')
 async def leave(sid, message):
     sio.leave_room(sid, message['room'], namespace='/test')
@@ -117,12 +119,14 @@ async def leave(sid, message):
                    room=sid, namespace='/test')
     logger.debug('LEAVE ROOM (%s): %s' % (sid, message))
 
+
 @sio.on('close room', namespace='/test')
 async def close(sid, message):
     await sio.emit('my response', {'data': 'Room %s is closing' % message['room']},
                    room=message['room'], namespace='/test')
     await sio.close_room(message['room'], namespace='/test')
     logger.debug('CLOSE ROOM (%s): %s' % (sid, message))
+
 
 @sio.on('my room event', namespace='/test')
 async def send_room_message(sid, message):
@@ -134,10 +138,12 @@ async def send_room_message(sid, message):
                    room=message['room'], namespace='/test')
     logger.debug('ROOM EVENT (%s): %s' % (sid, message))
 
+
 @sio.on('disconnect request', namespace='/test')
 async def disconnect_request(sid):
     await sio.disconnect(sid, namespace='/test')
     logger.debug('DISCONNECT REQUEST: %s' % sid)
+
 
 @sio.on('connect', namespace='/test')
 async def test_connect(sid, environ):
@@ -148,6 +154,7 @@ async def test_connect(sid, environ):
     await sio.emit('my response', {'data': 'Connected', 'count': 0},
                    room=sid, namespace='/test')
     logger.debug('CONNECT USER: %s, ENVIRON: %s' % (sid, environ))
+
 
 @sio.on('disconnect', namespace='/test')
 def test_disconnect(sid):
