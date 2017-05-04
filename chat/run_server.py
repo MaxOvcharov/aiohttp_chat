@@ -13,15 +13,15 @@ from views import index
 
 # setup logger for app
 logger = set_logger()
-pg = None
+# pg = None
 
 async def init(loop):
-    global pg
+    # global pg
     app = web.Application(loop=loop)
 
     # load config from yaml file
     conf = load_config(os.path.join(BASE_DIR, "config/dev.yml"))
-    pg = await setup_pg(app, conf, loop)
+    sio.pg = await setup_pg(app, conf, loop)
 
     # Attach app to the Socket.io server
     sio.attach(app)

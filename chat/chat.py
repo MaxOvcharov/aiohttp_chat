@@ -14,7 +14,7 @@ logger = set_logger()
 # setup application and extensions
 sio = socketio.AsyncServer(async_mode='aiohttp',
                            allow_upgrades=True)
-from run_server import pg
+# from run_server import pg
 # async def run_chat(pg):
 
 def call_back_from_client(*args, **kwargs):
@@ -48,7 +48,7 @@ async def test_message(sid, message):
             await sio.emit('my response',
                            {'data': message.get('data', 'Message should be dict: {"data": "some text"}')},
                            room=sid, namespace='/test')
-            async with pg.acquire() as conn:
+            async with sio.pg.acquire() as conn:
                 async with conn.begin():
                     uid = await conn.scalar(users.insert().values(login='max12', password='121212'))
                     await conn.execute(private_history.
