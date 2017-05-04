@@ -42,7 +42,7 @@ async def send_message(sid, message):
     logger.debug('MESSAGE TRANSPORT MODE (%s): %s' % (sid, transport_mode))
     try:
         if isinstance(message, dict):
-            await sio.emit('my response',
+            await sio.emit('sendMessageResponse',
                            {'data': message.get('data', 'Message should be dict: {"data": "some text"}')},
                            room=sid, namespace='/chat')
             async with sio.pg.acquire() as conn:
