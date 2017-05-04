@@ -3,10 +3,7 @@ import os
 
 from aiohttp import web
 
-from settings import set_logger, BASE_DIR
-
-# setup logger for app
-logger = set_logger()
+from settings import BASE_DIR
 
 async def index(request):
     """
