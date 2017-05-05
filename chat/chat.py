@@ -1,13 +1,12 @@
 import aiofiles
 import base64
 import gzip
-import json
 import hashlib
 import socketio
 
 from small_talk import run_small_talk
 from settings import logger
-from models import users, private_history
+from models import save_private_history
 
 # setup application and extensions
 sio = socketio.AsyncServer(async_mode='aiohttp',
@@ -49,15 +48,7 @@ async def send_message(sid, message):
                                {'data': api_ai_message},
                                room=sid, namespace='/chat')
                 async with sio.pg.acquire() as conn:
-                    async with conn.begin():
-                        uid = await conn.scalar(users.insert().values(login='max12', password='121212'))
-                        await conn.execute(private_history.
-                                           insert().
-                                           values(message_id=1,
-                                                  message_json=json.dumps(
-                                                      {'test': message.get('data', 'Wrong data was sent')}),
-                                                  user_id=uid,
-                                                  chat_id='test_chat'))
+                    await save_private_history(conn, message)
                 logger.debug('EVENT: "sendMessage"(ECHO), SID: %s Message: %s' % (sid, message))
             else:
                 raise ValueError('Message should have key("data")')

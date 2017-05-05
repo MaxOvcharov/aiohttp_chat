@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-import uuid
-
 import aiopg.sa
+import uuid
+import json
+
 from sqlalchemy import MetaData
 from sqlalchemy import ForeignKey
 from sqlalchemy import Table, Column
@@ -10,7 +11,8 @@ from sqlalchemy.types import TypeDecorator, CHAR
 from sqlalchemy.dialects.postgresql import UUID, JSON
 
 
-__all__ = ['users', 'unknown_users', 'users_to_unknown_users',
+__all__ = ['save_private_history',
+           'users', 'unknown_users', 'users_to_unknown_users',
            'private_history', 'public_history']
 
 metadata = MetaData()
@@ -102,14 +104,14 @@ async def init_postgres(conf, loop):
         maxsize=conf['maxsize'],
         loop=loop)
     return engine
-#
-#
-# def crete_engine_pg(conf):
-#     yield from aiopg.sa.create_engine(
-#         database=conf['database'],
-#         user=conf['user'],
-#         password=conf['password'],
-#         host=conf['host'],
-#         port=conf['port'],
-#         minsize=conf['minsize'],
-#         maxsize=conf['maxsize'],)
+
+async def save_private_history(conn, message):
+    async with conn.begin():
+        uid = await conn.scalar(users.insert().values(login='max12', password='121212'))
+        await conn.execute(private_history.
+                           insert().
+                           values(message_id=1,
+                                  message_json=json.dumps(
+                                      {'test': message.get('data', 'Wrong data was sent')}),
+                                  user_id=uid,
+                                  chat_id='test_chat'))
