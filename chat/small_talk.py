@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import asyncio
-import functools
 import json
+import multiprocessing
 import os.path
-import signal
 import sys
-
 try:
     import apiai
 except ImportError:
@@ -14,19 +12,19 @@ except ImportError:
     )
     import apiai
 
+from concurrent.futures import ThreadPoolExecutor
+
 from settings import logger, BASE_DIR
 from utils import load_config
 
-from asyncio.streams import StreamWriter, FlowControlMixin
-
-reader, writer = None, None
+__all__ = ['run_small_talk']
 
 # load config from yaml file
 conf = load_config(os.path.join(BASE_DIR, "config/dev.yml"))
 api_ai_conf = conf['api_ai']
 
 
-def small_talk(message):
+def _small_talk(message="Привет"):
     """
         This method connect to Api.ai Small Talk domain
         :param message: input message
@@ -39,7 +37,7 @@ def small_talk(message):
     request.query = message
 
     response = request.getresponse().read()
-    obj = json.loads(response, encoding='utf8')
+    obj = json.loads(response.decode('utf-8'))
     try:
         alternate_result = obj.get('alternateResult')
         if not alternate_result:
@@ -59,52 +57,23 @@ def small_talk(message):
         logger.error('Handle ERROR: {0}'.format(e))
 
 
-async def stdio(loop=None):
-    if loop is None:
-        loop = asyncio.get_event_loop()
-
-    stdio_reader = asyncio.StreamReader()
-    reader_protocol = asyncio.StreamReaderProtocol(stdio_reader)
-
-    writer_transport, writer_protocol = await loop.connect_write_pipe(FlowControlMixin, os.fdopen(0, 'wb'))
-    stdio_writer = StreamWriter(writer_transport, writer_protocol, None, loop)
-
-    await loop.connect_read_pipe(lambda: reader_protocol, sys.stdin)
-
-    return stdio_reader, stdio_writer
+@asyncio.coroutine
+def run_small_talk(message):
+    pool = ThreadPoolExecutor(max_workers=multiprocessing.cpu_count())
+    st_loop = asyncio.get_event_loop()
+    future_api_ai_message = st_loop.run_in_executor(pool, _small_talk, message)
+    return future_api_ai_message
 
 
-async def async_input(message):
-    if isinstance(message, str):
-        message = message.encode('utf8')
-
-    global reader, writer
-    if (reader, writer) == (None, None):
-        reader, writer = await stdio()
-
-    writer.write(message)
-    await writer.drain()
-
-    line = await reader.readline()
-    return line.decode('utf8').replace('\r', '').replace('\n', '')
-
-
-async def main():
-    message = await async_input("Введите фразу: ")
-    print('Echo: %s' % message)
-    # print(small_talk(message))
-
-
-def handle_sigterm(loop):
-    loop.remove_signal_handler(signal.SIGTERM)
-    loop.stop()
+async def main(message):
+    res = await run_small_talk(message)
+    print('API_AI: %s' % res)
 
 
 if __name__ == '__main__':
+    user_message = input("Введите фразу: ")
     loop = asyncio.get_event_loop()
-    loop.add_signal_handler(signal.SIGTERM, handle_sigterm, loop)
-    try:
-        loop.call_soon(functools.partial(main))
-        loop.run_forever()
-    finally:
-        loop.close()
+    task = [asyncio.ensure_future(main(user_message))]
+    loop.run_until_complete(asyncio.wait(task))
+    loop.close()
+

@@ -5,6 +5,7 @@ import json
 import hashlib
 import socketio
 
+from small_talk import run_small_talk
 from settings import logger
 from models import users, private_history
 
@@ -42,20 +43,24 @@ async def send_message(sid, message):
     logger.debug('MESSAGE TRANSPORT MODE (%s): %s' % (sid, transport_mode))
     try:
         if isinstance(message, dict):
-            await sio.emit('sendMessageResponse',
-                           {'data': message.get('data', 'Message should be dict: {"data": "some text"}')},
-                           room=sid, namespace='/chat')
-            async with sio.pg.acquire() as conn:
-                async with conn.begin():
-                    uid = await conn.scalar(users.insert().values(login='max12', password='121212'))
-                    await conn.execute(private_history.
-                                       insert().
-                                       values(message_id=1,
-                                              message_json=json.dumps(
-                                                  {'test': message.get('data', 'Wrong data was sent')}),
-                                              user_id=uid,
-                                              chat_id='test_chat'))
-            logger.debug('EVENT: "sendMessage"(ECHO), SID: %s Message: %s' % (sid, message))
+            if message.get('data') is not None:
+                api_ai_message = await run_small_talk(message['data'])
+                await sio.emit('sendMessageResponse',
+                               {'data': api_ai_message},
+                               room=sid, namespace='/chat')
+                async with sio.pg.acquire() as conn:
+                    async with conn.begin():
+                        uid = await conn.scalar(users.insert().values(login='max12', password='121212'))
+                        await conn.execute(private_history.
+                                           insert().
+                                           values(message_id=1,
+                                                  message_json=json.dumps(
+                                                      {'test': message.get('data', 'Wrong data was sent')}),
+                                                  user_id=uid,
+                                                  chat_id='test_chat'))
+                logger.debug('EVENT: "sendMessage"(ECHO), SID: %s Message: %s' % (sid, message))
+            else:
+                raise ValueError('Message should have key("data")')
         else:
             raise TypeError('Message should be dict: {"data": "some text"}')
     except ValueError as e:
