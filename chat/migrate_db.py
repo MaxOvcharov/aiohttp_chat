@@ -6,10 +6,9 @@ from faker import Factory
 from sqlalchemy.schema import CreateTable, DropTable
 
 import models
-from settings import set_logger, BASE_DIR
+from settings import logger, BASE_DIR
 from utils import load_config
 
-logger = set_logger()
 
 async def delete_tables(pg, tables):
     """
