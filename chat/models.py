@@ -11,7 +11,7 @@ from sqlalchemy.types import TypeDecorator, CHAR
 from sqlalchemy.dialects.postgresql import UUID, JSON
 
 
-__all__ = ['save_private_history',
+__all__ = ['save_private_history', 'get_next_message_num',
            'users', 'unknown_users', 'users_to_unknown_users',
            'private_history', 'public_history']
 
@@ -81,6 +81,10 @@ public_history = Table('public_history', metadata,
                        Column('chat_id', String, nullable=False))
 
 
+class RecordNotFound(Exception):
+    """Requested record in database was not found"""
+
+
 async def setup_pg(app, conf, loop):
     # create connection to the database
     pg = await init_postgres(conf['postgres'], loop)
@@ -115,3 +119,14 @@ async def save_private_history(conn, message):
                                       {'test': message.get('data', 'Wrong data was sent')}),
                                   user_id=uid,
                                   chat_id='test_chat'))
+
+async def get_next_message_num(conn, user_id):
+    res = await conn.execute(
+        private_history.select().
+        where(private_history.c.user_id == user_id).order_by('-id')
+    )
+    message_num = await res.first()
+    if message_num:
+        return message_num
+    else:
+        return 1
