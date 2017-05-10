@@ -4,10 +4,10 @@ import gzip
 import hashlib
 import socketio
 
-# from small_talk import run_small_talk
+from small_talk import run_small_talk
 from settings import logger
 from models import save_private_history
-from server_message import get_server_message
+# from server_message import get_server_message
 
 # setup application and extensions
 sio = socketio.AsyncServer(async_mode='aiohttp',
@@ -44,8 +44,8 @@ async def send_message(sid, message):
     try:
         if isinstance(message, dict):
             if message.get('data') is not None:
-                # api_ai_message = await run_small_talk(message['data'])  # TODO change to the json server_message
-                api_ai_message = await get_server_message(message['data'])
+                api_ai_message = await run_small_talk(message['data'])  # TODO change to the json server_message
+                # api_ai_message = await get_server_message(sio.pg, message)
                 await sio.emit('sendMessageResponse',
                                {'data': api_ai_message},
                                room=sid, namespace='/chat')
