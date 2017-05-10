@@ -3,7 +3,8 @@ import logging
 
 from optparse import OptionParser
 
-__all__ = ['logger', 'parser', 'BASE_DIR']
+__all__ = ['logger', 'parse_args_for_run_server',
+           'parse_args_for_migrate_db', 'BASE_DIR']
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -19,9 +20,9 @@ ch.setFormatter(f)
 logger.addHandler(ch)
 
 
-def parse_args():
+def parse_args_for_run_server():
     """
-    Configurations of arg-parser
+    Configurations of arg-parser for run_server.py
     :return: options - a dict with input args
     """
     parser = OptionParser()
@@ -44,7 +45,24 @@ def parse_args():
     return options
 
 
-# try:
-#     from aiohttp_chat.local_settings import *
-# except ImportError:
-#     pass
+def parse_args_for_migrate_db():
+    """
+    Configurations of arg-parser for migrate_db.py
+    :return: options - a dict with input args
+    """
+    parser = OptionParser()
+    parser.add_option('-a', '--all', dest='all',
+                      help='MIGRATE TABLES AND INSERT DATA',
+                      action='store_true')
+    parser.add_option('-m', '--migrate-only', dest='migrate_only',
+                      help='MIGRATE TABLES',
+                      action='store_true')
+    parser.add_option('-i', '--insert', dest='insert',
+                      help='INSERT DATA INTO TABLES',
+                      action='store_true')
+    (options, args) = parser.parse_args()
+
+    if not options.all and not options.migrate_only and not options.insert:
+        parser.error('One args is mandatory for running migrate_db.py. See --help')
+
+    return options

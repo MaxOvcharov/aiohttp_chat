@@ -6,7 +6,7 @@ from aiohttp import web
 
 from chat import sio
 from models import setup_pg
-from settings import BASE_DIR, parse_args
+from settings import BASE_DIR, parse_args_for_run_server
 from utils import load_config
 from views import index
 
@@ -27,7 +27,7 @@ async def init(loop):
 
 
 def main():
-    options = parse_args()
+    options = parse_args_for_run_server()
     # Run background task
     # sio.start_background_task(background_task)
     loop = asyncio.get_event_loop()

@@ -11,8 +11,7 @@ from sqlalchemy.types import TypeDecorator, CHAR
 from sqlalchemy.dialects.postgresql import UUID, JSON
 
 
-__all__ = ['save_private_history', 'get_next_message_num',
-           'users', 'unknown_users', 'users_to_unknown_users',
+__all__ = ['users', 'unknown_users', 'users_to_unknown_users',
            'private_history', 'public_history']
 
 metadata = MetaData()
@@ -52,8 +51,8 @@ class GUID(TypeDecorator):
 
 users = Table('users', metadata,
               Column('id', Integer, primary_key=True),
-              Column('login', String(255), nullable=False),
-              Column('password', Text, nullable=False),
+              Column('first_name', String(100), nullable=True),
+              Column('last_name', String(100), nullable=True),
               Column('user_id', GUID(), default=uuid.uuid4, nullable=False, unique=True),
               )
 
@@ -77,7 +76,7 @@ public_history = Table('public_history', metadata,
                        Column('id', Integer, primary_key=True),
                        Column('message_id', Integer, nullable=True),
                        Column('message_json', JSON, server_default='{}'),
-                       Column('unknown_user_id', GUID(), ForeignKey('unknown_users.session_id')),
+                       Column('unknown_user_id', Integer, ForeignKey('unknown_users.id')),
                        Column('chat_id', String, nullable=False))
 
 
