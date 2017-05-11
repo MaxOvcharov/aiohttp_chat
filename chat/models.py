@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
 import aiopg.sa
-import uuid
 import json
+import random
+import uuid
 
-from sqlalchemy import MetaData
+
+from sqlalchemy import MetaData, exc, desc
 from sqlalchemy import ForeignKey
 from sqlalchemy import Table, Column
 from sqlalchemy import Integer, String, Text, Boolean
 from sqlalchemy.types import TypeDecorator, CHAR
 from sqlalchemy.dialects.postgresql import UUID, JSON
+
+from settings import logger
 
 
 __all__ = ['users', 'unknown_users', 'users_to_unknown_users',
@@ -95,7 +99,6 @@ async def setup_pg(app, conf, loop):
     app.on_cleanup.append(close_pg)
     return pg
 
-
 async def init_postgres(conf, loop):
     engine = await aiopg.sa.create_engine(
         database=conf['database'],
@@ -108,24 +111,67 @@ async def init_postgres(conf, loop):
         loop=loop)
     return engine
 
-async def save_private_history(conn, message):
-    async with conn.begin():
-        uid = await conn.scalar(users.insert().values(login='max12', password='121212'))
-        await conn.execute(private_history.
-                           insert().
-                           values(message_id=1,
-                                  message_json=json.dumps(
-                                      {'test': message.get('data', 'Wrong data was sent')}),
-                                  user_id=uid,
-                                  chat_id='test_chat'))
+async def get_or_create_user(conn, user_id):
+    try:
+        res = await conn.execute(
+            users.select().
+            where(users.c.user_id == user_id))
+        user = await res.first()
+        if user:
+            return user[0], False
+        else:
+            user = conn.execute(users.insert().values())
+            return user[0], True
+    except exc.SQLAlchemyError as e:
+        logger.erorr('SQL-method: %s' % e)
 
-async def get_next_message_num(conn, user_id):
-    res = await conn.execute(
-        private_history.select().
-        where(private_history.c.user_id == user_id).order_by('-id')
-    )
-    message_num = await res.first()
-    if message_num:
-        return message_num
-    else:
-        return 1
+async def save_private_history(conn, message_data):
+    try:
+        async with conn.begin():
+            user = await get_or_create_user(conn, message_data['user_id'])  # TODO add first and last name for user
+            message_num = await get_next_message_num(conn, user[0])
+            await conn.execute(private_history.
+                               insert().
+                               values(message_id=message_num,
+                                      message_json=message_data['message_json'],
+                                      user_id=user[0],
+                                      chat_id=message_data['chat_id']))
+        return message_num + 1
+    except exc.SQLAlchemyError as e:
+        logger.erorr('SQL-method: %s' % e)
+
+async def get_next_message_num(conn, user_id, chat_id=False):
+    """
+    Get next number of message and if flag chat_id=True return chat_id
+    :param conn: connect to DB engine(PostgreSQL)
+    :param user_id: user_id from 'users' table
+    :param chat_id: If True: return chat_id for test client_message
+    :return: message_num, [chat_id]
+    """
+    try:
+        res = await conn.execute(
+            private_history.select().
+            where(private_history.c.user_id == user_id).order_by(desc('id'))
+        )
+        message_num = await res.first()
+
+        if message_num and not chat_id:
+            return message_num['message_id'] + 1
+        elif message_num and chat_id:
+            return message_num['message_id'] + 1, message_num['chat_id']
+        else:
+            return 1
+    except exc.SQLAlchemyError as e:
+        logger.erorr('SQL-method: %s' % e)
+
+async def get_data_for_client_message(conn):
+    try:
+        res = await conn.execute(
+            users.select().where(users.c.id == random.randint(1, 10))
+        )
+        user = await res.fetchone()
+        message_num, chat_id = await get_next_message_num(conn, user['id'], chat_id=True)
+        return user, message_num, chat_id
+    except exc.SQLAlchemyError as e:
+        logger.error('SQL-method: %s' % e)
+

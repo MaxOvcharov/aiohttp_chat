@@ -6,7 +6,6 @@ import socketio
 
 from small_talk import run_small_talk
 from settings import logger
-from models import save_private_history
 # from server_message import get_server_message
 
 # setup application and extensions
@@ -49,8 +48,6 @@ async def send_message(sid, message):
                 await sio.emit('sendMessageResponse',
                                {'data': api_ai_message},
                                room=sid, namespace='/chat')
-                async with sio.pg.acquire() as conn:
-                    await save_private_history(conn, message)
                 logger.debug('EVENT: "sendMessage"(ECHO), SID: %s Message: %s' % (sid, message))
             else:
                 raise ValueError('Message should have key("data")')

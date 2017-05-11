@@ -24,6 +24,7 @@ async def delete_tables(pg, tables):
             drop_expr = DropTable(table)
             try:
                 await conn.execute(drop_expr)
+                # await conn.execute('TRUNCATE %s CASCADE;' % table)
                 logger.debug('DB_DELETE: %s' % table)
             except psycopg2.ProgrammingError as e:
                 logger.error('DB_DELETE: %s' % e)
