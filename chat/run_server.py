@@ -22,6 +22,7 @@ async def init(loop):
     sio.attach(app)
     # setup views and routes
     app.router.add_static('/static', os.path.join(BASE_DIR, "chat/static/"))
+    # app.router.add_static('/css', os.path.join(BASE_DIR, "chat/chat_widget/"))
     app.router.add_get('/', index)
     return app
 
