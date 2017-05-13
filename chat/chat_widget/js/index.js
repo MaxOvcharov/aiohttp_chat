@@ -6,7 +6,6 @@
       this.cacheDOM();
       this.bindEvents();
       this.render();
-//      this.socketIO();
     },
     cacheDOM: function() {
       this.$chatHistory = $('.chat-history');
@@ -38,7 +37,6 @@
       // the data is displayed in the "Received" section of the page
       // handlers for the different forms in the page
       // these send data to the server in a variety of ways
-
       $('form#broadcast').submit(function(event) {
           socket.emit('my broadcast event', {data: $('#broadcast_data').val()});
           return false;
@@ -65,7 +63,7 @@
       });
       if (this.messageToSend.trim() !== '') {
         var template = Handlebars.compile( $("#message-template").html());
-        var context = { 
+        var context = {
           messageOutput: this.messageToSend,
           time: this.getCurrentTime()
         };
@@ -73,30 +71,26 @@
         this.$chatHistoryList.append(template(context));
         this.scrollToBottom();
         this.$textarea.val('');
-        
+
         // responses
         var templateResponse = Handlebars.compile( $("#message-response-template").html());
 
         var contextResponse = {
-          response: 'Hi',
+          response: 'test',
           time: this.getCurrentTime()
         };
-        socket.on('sendMessageResponse', function(this.contextResponse, msg) {
-            this.contextResponse.response =  msg.data;
+        socket.on('sendMessageResponse', function(msg) {
+            contextResponse.response = msg.data;
         });
 
         setTimeout(function() {
           this.$chatHistoryList.append(templateResponse(contextResponse));
           this.scrollToBottom();
         }.bind(this), 1500);
-        
+
       }
-      
     },
-//    socketIO: function(){
-//
-//    },
-    
+
     addMessage: function() {
       this.messageToSend = this.$textarea.val()
       this.render();         

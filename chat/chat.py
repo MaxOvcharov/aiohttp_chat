@@ -40,6 +40,7 @@ async def send_message(sid, message):
     # Added transport mode checker
     transport_mode = sio.transport(sid)
     logger.debug('MESSAGE TRANSPORT MODE (%s): %s' % (sid, transport_mode))
+    logger.debug('EVENT("sendMessage"): %s' % message['data'])
     try:
         if isinstance(message, dict):
             if message.get('data') is not None:
