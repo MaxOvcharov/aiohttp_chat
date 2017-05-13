@@ -2,18 +2,11 @@
   
   var chat = {
     messageToSend: '',
-    messageResponses: [
-      'Why did the web developer leave the restaurant? Because of the table layout.',
-      'How do you comfort a JavaScript bug? You console it.',
-      'An SQL query enters a bar, approaches two tables and asks: "May I join you?"',
-      'What is the most used language in programming? Profanity.',
-      'What is the object-oriented way to become wealthy? Inheritance.',
-      'An SEO expert walks into a bar, bars, pub, tavern, public house, Irish pub, drinks, beer, alcohol'
-    ],
     init: function() {
       this.cacheDOM();
       this.bindEvents();
       this.render();
+//      this.socketIO();
     },
     cacheDOM: function() {
       this.$chatHistory = $('.chat-history');
@@ -27,24 +20,71 @@
     },
     render: function() {
       this.scrollToBottom();
+      namespace = '/chat';
+      var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
+      socket.on('connect', function() {
+          socket.emit('sendMessage', {data: 'I\'m connected!'});
+      });
+      socket.on('disconnect', function() {
+          $('#log').append('<br>Disconnected');
+      });
+
+      socket.on('my response', function(msg) {
+          $('#log').append('<br>Received: ' + msg.data);
+      });
+
+      // event handler for server sent data
+      // the data is displayed in the "Received" section of the page
+      // handlers for the different forms in the page
+      // these send data to the server in a variety of ways
+
+      $('form#broadcast').submit(function(event) {
+          socket.emit('my broadcast event', {data: $('#broadcast_data').val()});
+          return false;
+      });
+      $('form#join').submit(function(event) {
+          socket.emit('join', {room: $('#join_room').val()});
+          return false;
+      });
+      $('form#leave').submit(function(event) {
+          socket.emit('leave', {room: $('#leave_room').val()});
+          return false;
+      });
+      $('form#send_room').submit(function(event) {
+          socket.emit('my room event', {room: $('#room_name').val(), data: $('#room_data').val()});
+          return false;
+      });
+      $('form#close').submit(function(event) {
+          socket.emit('close room', {room: $('#close_room').val()});
+          return false;
+      });
+      $('form#disconnect').submit(function(event) {
+          socket.emit('disconnect request');
+          return false;
+      });
       if (this.messageToSend.trim() !== '') {
         var template = Handlebars.compile( $("#message-template").html());
         var context = { 
           messageOutput: this.messageToSend,
           time: this.getCurrentTime()
         };
-
+        socket.emit('sendMessage', {data: this.messageToSend.trim()});
         this.$chatHistoryList.append(template(context));
         this.scrollToBottom();
         this.$textarea.val('');
         
         // responses
         var templateResponse = Handlebars.compile( $("#message-response-template").html());
-        var contextResponse = { 
-          response: this.getRandomItem(this.messageResponses),
+
+        var contextResponse = {
+          response: 'Hi',
           time: this.getCurrentTime()
         };
-        
+        socket.on('sendMessageResponse', function(this.contextResponse, msg) {
+            this.contextResponse.response =  msg.data;
+        });
+
         setTimeout(function() {
           this.$chatHistoryList.append(templateResponse(contextResponse));
           this.scrollToBottom();
@@ -53,6 +93,9 @@
       }
       
     },
+//    socketIO: function(){
+//
+//    },
     
     addMessage: function() {
       this.messageToSend = this.$textarea.val()

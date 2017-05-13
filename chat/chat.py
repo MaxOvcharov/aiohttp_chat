@@ -48,7 +48,7 @@ async def send_message(sid, message):
                 await sio.emit('sendMessageResponse',
                                {'data': api_ai_message},
                                room=sid, namespace='/chat')
-                logger.debug('EVENT: "sendMessage"(ECHO), SID: %s Message: %s' % (sid, message))
+                logger.debug('EVENT("sendMessageResponse"): %s' % api_ai_message)
             else:
                 raise ValueError('Message should have key("data")')
         else:

@@ -8,8 +8,8 @@
     <script type="text/javascript" charset="utf-8">
         $(document).ready(function(){
             namespace = '/chat';
-            var socket = io.connect('https://' + document.domain + ':' + location.port + namespace);
-            <!--var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);-->
+            <!--var socket = io.connect('https://' + document.domain + ':' + location.port + namespace);-->
+            var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
 
             socket.on('connect', function() {
                 socket.emit('sendMessage', {data: 'I\'m connected!'});
