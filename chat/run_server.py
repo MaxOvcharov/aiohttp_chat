@@ -21,7 +21,6 @@ async def init(loop):
     # Attach app to the Socket.io server
     sio.attach(app)
     # setup views and routes
-    # app.router.add_static('/static', os.path.join(BASE_DIR, "chat/static/"))
     app.router.add_static('/css', os.path.join(BASE_DIR, "chat/chat_widget/css"))
     app.router.add_static('/js', os.path.join(BASE_DIR, "chat/chat_widget/js"))
     app.router.add_static('/fonts', os.path.join(BASE_DIR, "chat/chat_widget/fonts"))
