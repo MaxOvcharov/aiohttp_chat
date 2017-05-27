@@ -1,0 +1,8 @@
+{
+  "test_custom_sql_methods.py::test_get_or_create_user_metod[params_get_or_create_user_metod_positive0]": true,
+  "test_custom_sql_methods.py::test_get_or_create_user_metod[params_get_or_create_user_metod_positive1]": true,
+  "test_custom_sql_methods.py::test_get_or_create_user_metod[params_get_or_create_user_metod_positive2]": true,
+  "test_custom_sql_methods.py::test_get_or_create_user_metod[params_get_or_create_user_metod_positive3]": true,
+  "test_custom_sql_methods.py::test_get_or_create_user_metod[params_get_or_create_user_metod_positive4]": true,
+  "test_custom_sql_methods.py::test_get_or_create_user_metod[params_get_or_create_user_metod_positive5]": true
+}

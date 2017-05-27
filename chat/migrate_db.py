@@ -12,11 +12,12 @@ from settings import logger, BASE_DIR, parse_args_for_migrate_db
 from utils import load_config
 
 
-async def delete_tables(pg, tables):
+async def delete_tables(pg, tables, verbose=True):
     """
     Delete tables from DB before creating new version
     :param pg: connect to DB engine(PostgreSQL)
     :param tables: tables from models.py
+    :param verbose: set logs
     :return: None
     """
     async with pg.acquire() as conn:
@@ -24,23 +25,23 @@ async def delete_tables(pg, tables):
             drop_expr = DropTable(table)
             try:
                 await conn.execute(drop_expr)
-                # await conn.execute('TRUNCATE %s CASCADE;' % table)
-                logger.debug('DB_DELETE: %s' % table)
+                if verbose:
+                    logger.debug('DB_DELETE: %s' % table)
             except psycopg2.ProgrammingError as e:
                 logger.error('DB_DELETE: %s' % e)
 
-async def insert_data(pg, table, values, res=False):
+async def insert_data(pg, table, values, res=False, verbose=True):
     """
     Universal method for inserting data into table
     :param pg: connect to DB engine(PostgreSQL)
     :param table: table name
     :param values: list of users
     :param res: If true - return result id list
+    :param verbose: set logs
     :return: None or list of table_id
     """
-    logger.debug('INSERT_DATA_INTO: %s' % table)
-    # logger.debug('INSERT_DATA_INTO: %s' % values)
-    # print(values)
+    if verbose:
+        logger.debug('INSERT_DATA_INTO: %s' % table)
     async with pg.acquire() as conn:
         try:
             if res:
@@ -167,28 +168,31 @@ async def generate_users_to_unknown_users(pg, user_ids, unknown_user_ids):
         user_ids.remove(uid)
     await insert_data(pg, models.users_to_unknown_users, values)
 
-async def prepare_tables(pg):
+async def prepare_tables(pg, verbose=True):
     """
     Get all tables from models.py, delete them and create new tables
     :param pg: connect to DB engine(PostgreSQL)
+    :param verbose: set logs
     :return: None
     """
     tables = [getattr(models, table) for table in models.__all__]
-    await delete_tables(pg, tables)
+    await delete_tables(pg, tables, verbose=verbose)
     async with pg.acquire() as conn:
         for table in tables:
             create_expr = CreateTable(table)
             try:
                 await conn.execute(create_expr)
-                logger.debug('DB_CREATE: %s' % table)
+                if verbose:
+                    logger.debug('DB_CREATE: %s' % table)
             except psycopg2.ProgrammingError as e:
                 logger.error('DB_CREATE(ERROR): %s' % e)
 
-async def prepare_insert_data(pg):
+async def prepare_insert_data(pg, verbose=True):
     """
     Insert data into DB tables: users, unknown_users,
     users_to_unknown_users, private_history, public_history
     :param pg: connect to DB engine(PostgreSQL)
+    :param verbose: set logs
     :return: None
     """
     user_ids = await generate_users(pg, rows=50)
