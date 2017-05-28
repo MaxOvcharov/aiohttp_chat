@@ -18,16 +18,19 @@ def get_user_id_for_param(pg, chat_tables, loop):
     return user_id
 
 
-@pytest.fixture(params=[(1, True), (2, True), (3, True),
-                        (4, False), (5, False), (6, False)])
+@pytest.fixture(params=[(1, False), (2, False), (3, False),
+                        (4, True), (5, True), (6, True)])
 def params_get_or_create_user_metod_positive(request, get_user_id_for_param):
     if request.param[0] <= 3:
-        return get_user_id_for_param
+        return get_user_id_for_param, request.param[1]
     else:
-        return uuid.uuid4()
+        return uuid.uuid4(), request.param[1]
 
 
 @pytest.mark.run_loop
-async def test_get_or_create_user_metod(create_table, params_get_or_create_user_metod_positive):
-    t = params_get_or_create_user_metod_positive
-    print(t)
+async def test_get_or_create_user_metod(pg, create_table, params_get_or_create_user_metod_positive):
+    input_user_id, input_res_of_creating = params_get_or_create_user_metod_positive
+    async with pg.acquire() as conn:
+        user_id, res_of_creating = await get_or_create_user(conn, input_user_id)
+
+    assert res_of_creating == input_res_of_creating

@@ -113,15 +113,12 @@ async def init_postgres(conf, loop):
 
 async def get_or_create_user(conn, user_id):
     try:
-        res = await conn.execute(
-            users.select().
-            where(users.c.user_id == user_id))
-        user = await res.first()
-        if user:
-            return user[0], False
+        uid = await conn.scalar(users.select().where(users.c.user_id == user_id))
+        if uid:
+            return uid, False
         else:
-            user = conn.execute(users.insert().values())
-            return user[0], True
+            uid = await conn.scalar(users.insert().values({'user_id': user_id}))
+            return uid, True
     except exc.SQLAlchemyError as e:
         logger.erorr('SQL-method: %s' % e)
 
