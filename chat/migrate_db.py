@@ -11,6 +11,7 @@ import models
 from settings import logger, BASE_DIR, parse_args_for_migrate_db
 from utils import load_config
 
+verbose_insert_data = True
 
 async def delete_tables(pg, tables, verbose=True):
     """
@@ -30,7 +31,7 @@ async def delete_tables(pg, tables, verbose=True):
             except psycopg2.ProgrammingError as e:
                 logger.error('DB_DELETE: %s' % e)
 
-async def insert_data(pg, table, values, res=False, verbose=True):
+async def insert_data(pg, table, values, res=False):
     """
     Universal method for inserting data into table
     :param pg: connect to DB engine(PostgreSQL)
@@ -40,7 +41,7 @@ async def insert_data(pg, table, values, res=False, verbose=True):
     :param verbose: set logs
     :return: None or list of table_id
     """
-    if verbose:
+    if verbose_insert_data:
         logger.debug('INSERT_DATA_INTO: %s' % table)
     async with pg.acquire() as conn:
         try:
@@ -195,6 +196,8 @@ async def prepare_insert_data(pg, verbose=True):
     :param verbose: set logs
     :return: None
     """
+    global verbose_insert_data
+    verbose_insert_data = verbose
     user_ids = await generate_users(pg, rows=50)
     await generate_private_history(pg, user_ids, rows=200)
     unknown_user_ids = await generate_unknown_users(pg, rows=10)
@@ -213,7 +216,7 @@ async def init(loop, do_all=None, migrate_only=None, insert=None):
     logger.debug('DB_START: start uploading new version of tables')
     # load config from yaml file
     conf = load_config(os.path.join(BASE_DIR, "config/dev.yml"))
-    pg = await models.init_postgres(conf['postgres'], loop)
+    pg = await models.init_postgres(conf['postgres_test'], loop)
     if do_all:
         await prepare_tables(pg)  # TODO add insert data functions
         await prepare_insert_data(pg)

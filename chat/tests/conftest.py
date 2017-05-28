@@ -1,8 +1,12 @@
 import asyncio
 import gc
-import socket
-
+import os
 import pytest
+import socket
+import sys
+
+myPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, myPath + '/../')
 
 
 @pytest.yield_fixture

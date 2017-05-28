@@ -1,5 +1,3 @@
-import datetime
-
 import aiopg.sa
 import os
 import pytest
@@ -48,12 +46,12 @@ def chat_tables():
 def create_table(request, chat_tables, loop, pg):
     async def run_db_migration(pg):
         await prepare_tables(pg, verbose=False)
-        await prepare_insert_data(pg)
+        await prepare_insert_data(pg, verbose=False)
 
     loop.run_until_complete(run_db_migration(pg))
 
-    tables = [table for table in chat_tables.values()]
-    async def fin():
-        await delete_tables(pg, tables, verbose=False)
-
-    loop.run_until_complete(fin())
+    # tables = [table for table in chat_tables.values()]
+    # async def fin():
+    #     await delete_tables(pg, tables, verbose=False)
+    #
+    # loop.run_until_complete(fin())
