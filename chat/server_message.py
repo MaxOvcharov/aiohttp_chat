@@ -56,22 +56,21 @@ async def _prepare_client_message(pg, user_message):
     }
     return json.dumps(client_message_data, cls=JSONEncoder_newdefault)
 
-async def _prepare_server_message(message_num, chat_id, message_text):
+async def _prepare_server_message(chat, message_text):
     message_data = {
         'message': {
             'date': datetime.now(),
             'text': await run_small_talk(message_text),
-            'message_id': message_num,
+            'message_id': 1,
             'chat': {
-                'id': chat_id,
-                'title': chat_id.split('_')[0]
+                'id': chat['chat_id'],
+                'title': chat['title']
             },
         }
     }
     return json.dumps(message_data, cls=JSONEncoder_newdefault)
 
-async def get_server_message(pg, client_message):
-    client_message = json.loads(client_message)
+async def _save_client_message(pg, client_message):
     client_message_data = {
         'user_id': client_message.get('user_id'),
         'chat_id': client_message.get('pgta_api').get('message').get('chat').get('id'),
@@ -81,17 +80,9 @@ async def get_server_message(pg, client_message):
 
     # Save message from client
     async with pg.acquire() as conn:  # TODO add check if api doesn't response
-        message_num = await save_private_history(conn, client_message_data)
+        await save_private_history(conn, client_message_data)
 
-    server_message = await _prepare_server_message(message_num,
-                                                   client_message.get('pgta_api')
-                                                   .get('message')
-                                                   .get('chat')
-                                                   .get('id'),
-                                                   client_message.get('pgta_api')
-                                                   .get('message')
-                                                   .get('text'))
-
+async def _save_server_message(pg, client_message, server_message):
     server_message_data = {
         'user_id': client_message.get('user_id'),
         'chat_id': client_message.get('pgta_api').get('message').get('chat').get('id'),
@@ -101,6 +92,14 @@ async def get_server_message(pg, client_message):
     async with pg.acquire() as conn:  # TODO add check if api doesn't response
         await save_private_history(conn, server_message_data)
 
+
+async def get_server_message(pg, client_message):
+    await _save_client_message(pg, client_message)
+    server_message = await _prepare_server_message(
+        client_message.get('pgta_api').get('message').get('chat'),
+        client_message.get('pgta_api').get('message').get('text')
+    )
+    await _save_server_message(pg, client_message, server_message)
     return server_message
 
 async def main(loop, input_message_text):
