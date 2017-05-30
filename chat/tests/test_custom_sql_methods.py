@@ -32,5 +32,4 @@ async def test_get_or_create_user_metod(pg, create_table, params_get_or_create_u
     input_user_id, input_res_of_creating = params_get_or_create_user_metod_positive
     async with pg.acquire() as conn:
         user_id, res_of_creating = await get_or_create_user(conn, input_user_id)
-
     assert res_of_creating == input_res_of_creating
