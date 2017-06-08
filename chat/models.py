@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import aiopg.sa
-import json
 import random
 import uuid
 

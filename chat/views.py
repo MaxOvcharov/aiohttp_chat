@@ -24,8 +24,6 @@ async def index(request):
         return web.Response(text=f.read(), content_type='text/html')
 
 
-
-
 def redirect(request, router_name):
     url = request.app.router[router_name].url()
     raise web.HTTPFound(url)
