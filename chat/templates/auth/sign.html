@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h4>
+{{ conten }}
+</h4>
+<form autocomplete="on">
+    <div id="error" style="color: red;"></div>
+    <div class="form-group">
+        <label>Insert login
+            <input type="text" class="form-control" pattern="[A-Za-zА-Яа-я0-9]{3,}" placeholder="Login" id="login_text" required>
+        </label>
+    </div>
+    <div class="form-group">
+        <label>Email address
+            <input type="email" class="form-control" placeholder="Email", id="email" required>
+        </label>
+    </div>
+    <div class="form-group">
+        <label>Enter password
+            <input type="password" class="form-control" pattern="[A-Za-zА-Яа-я0-9]{8,}" placeholder="Password", id="password" required>
+        </label>
+    </div>
+    <div class="form-group">
+        <label>Password check
+            <input type="password" class="form-control" pattern="[A-Za-zА-Яа-я0-9]{8,}" placeholder="Password", id="password2" required>
+        </label>
+    </div>
+    <p>
+        <input class="btn btn-primary" id="submit" title="Send" type="button" value="Send">
+        <input class="btn btn-default" id="login" title="Login" type="button" value="Login">
+    </p>
+</form>
+{% endblock %}
+
+{% block footer %}
+<script src="{{ app.router.static.url(filename='js/signin.js') }}"></script>
+{% endblock %}
