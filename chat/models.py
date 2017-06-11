@@ -56,6 +56,9 @@ users = Table('users', metadata,
               Column('id', Integer, primary_key=True),
               Column('first_name', String(100), nullable=True),
               Column('last_name', String(100), nullable=True),
+              Column('login', String(100), nullable=False),
+              Column('email', String(100), nullable=True),
+              Column('password', String(100), nullable=False),
               Column('user_id', GUID(), default=uuid.uuid4, nullable=False, unique=True),
               )
 
