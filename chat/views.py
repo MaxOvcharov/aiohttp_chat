@@ -7,7 +7,7 @@ from bson.objectid import ObjectId
 import aiohttp_jinja2
 from aiohttp import web
 from aiohttp_session import get_session
-from auth.models import User
+from models import users
 
 from aiohttp import web
 

@@ -6,6 +6,7 @@ from aiohttp import web
 
 from chat import sio
 from models import setup_pg
+from routes import routes
 from settings import BASE_DIR, parse_args_for_run_server
 from utils import load_config
 from views import index
@@ -24,7 +25,9 @@ async def init(loop):
     app.router.add_static('/css', os.path.join(BASE_DIR, "chat/chat_widget/css"))
     app.router.add_static('/js', os.path.join(BASE_DIR, "chat/chat_widget/js"))
     app.router.add_static('/fonts', os.path.join(BASE_DIR, "chat/chat_widget/fonts"))
-    app.router.add_get('/', index)
+    # route part
+    for route in routes:
+        app.router.add_route(route[0], route[1], route[2], name=route[3])
     return app
 
 
