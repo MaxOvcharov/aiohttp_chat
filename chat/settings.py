@@ -32,10 +32,11 @@ def parse_args_for_run_server():
                       default=None)
     parser.add_option('--port', dest='port', type='int',
                       help='PORT FOR HTTP CONNECTION',
+                      default=8080,
                       metavar='PORT FOR HTTP CONNECTION')
     parser.add_option('--host', dest='host',
                       help='HOST NAME',
-                      default='127.0.0.2',
+                      default='127.0.0.1',
                       metavar='HOST NAME')
     (options, args) = parser.parse_args()
 

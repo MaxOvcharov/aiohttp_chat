@@ -4,16 +4,26 @@ import os
 
 from aiohttp import web
 
+from aiohttp_session import session_middleware
+from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from chat import sio
 from models import setup_pg
 from routes import routes
 from settings import BASE_DIR, parse_args_for_run_server
 from utils import load_config
+
+from middlewares import authorize
 from views import index
 
 
 async def init(loop):
-    app = web.Application(loop=loop)
+
+    middle = [
+        session_middleware(EncryptedCookieStorage('SECRET_KEY')),
+        authorize,
+    ]
+
+    app = web.Application(loop=loop, middlewares=middle)
 
     # load config from yaml file
     conf = load_config(os.path.join(BASE_DIR, "config/dev.yml"))

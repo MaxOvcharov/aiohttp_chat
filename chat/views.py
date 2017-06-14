@@ -2,7 +2,6 @@
 import os
 import json
 from time import time
-from bson.objectid import ObjectId
 
 import aiohttp_jinja2
 from aiohttp import web
@@ -72,11 +71,11 @@ class SignIn(web.View):
         data = await self.request.post()
         user = User(self.request.db, data)
         result = await user.create_user()
-        if isinstance(result, ObjectId):
-            session = await get_session(self.request)
-            set_session(session, str(result), self.request)
-        else:
-            return web.Response(content_type='application/json', text=convert_json(result))
+        # if isinstance(result, ObjectId):
+        #     session = await get_session(self.request)
+        #     set_session(session, str(result), self.request)
+        # else:
+        #     return web.Response(content_type='application/json', text=convert_json(result))
 
 
 class SignOut(web.View):
