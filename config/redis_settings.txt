@@ -1,0 +1,28 @@
+============= Installing Redis =============
+
+1) sudo apt-get update
+2) sudo apt-get install build-essential
+3) sudo apt-get install tcl8.5
+4) cd /usr/src/
+5) wget http://download.redis.io/releases/redis-stable.tar.gz
+6) tar xzf redis-stable.tar.gz
+7) cd redis-stable
+8) make
+9) make test
+10) cd utils
+11) sudo ./install_server.sh
+12) DO YOUR OWN SETTING FOR CONF FILE
+
+Selected config:
+Port           : 6379
+Config file    : redis_6379.conf
+Log file       : /var/log/redis_6379.log
+Data dir       : /var/redis/6379
+Executable     : /usr/local/bin/redis-server
+Cli Executable : /usr/local/bin/redis-cli
+
+13) update-rc.d redis_6379 defaults
++++++++++++++++++++++++++++++++++++++++++++++
+sudo service redis_6379 start
+sudo service redis_6379 stop
+redis-cli
