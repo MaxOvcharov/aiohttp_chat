@@ -17,16 +17,16 @@ from views import index
 
 
 async def init(loop):
+    # load config from yaml file
+    conf = load_config(os.path.join(BASE_DIR, "config/dev.yml"))
 
     middle = [
-        session_middleware(EncryptedCookieStorage('SECRET_KEY')),
+        session_middleware(EncryptedCookieStorage(conf['cookes']['secret_key'])),
         authorize,
     ]
 
     app = web.Application(loop=loop, middlewares=middle)
 
-    # load config from yaml file
-    conf = load_config(os.path.join(BASE_DIR, "config/dev.yml"))
     sio.pg = await setup_pg(app, conf, loop)
 
     # Attach app to the Socket.io server

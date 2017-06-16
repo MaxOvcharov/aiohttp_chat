@@ -10,6 +10,8 @@ from settings import logger
 
 # setup application and extensions
 sio = socketio.AsyncServer(async_mode='aiohttp',
+                           logger=True,
+                           engineio_logger=True,
                            allow_upgrades=True)
 
 
