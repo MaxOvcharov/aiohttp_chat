@@ -40,7 +40,7 @@ def convert_json(message):
 
 class Login(web.View):
 
-    @aiohttp_jinja2.template('auth/login.html')
+    @aiohttp_jinja2.template('/templates/auth/login.html')
     async def get(self):
         session = await get_session(self.request)
         if session.get('user'):
@@ -60,7 +60,7 @@ class Login(web.View):
 
 class SignIn(web.View):
 
-    @aiohttp_jinja2.template('auth/sign.html')
+    @aiohttp_jinja2.template('/templates/auth/sign.html')
     async def get(self, **kw):
         session = await get_session(self.request)
         if session.get('user'):

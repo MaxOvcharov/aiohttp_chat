@@ -40,7 +40,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/home/max/bot_project/aiohttp_chat/venv"
+VIRTUAL_ENV="/Users/max12/Git/aiohttp_chat/venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

@@ -1,4 +1,4 @@
-#!/home/max/bot_project/aiohttp_chat/venv/bin/python3.5
+#!/Users/max12/Git/aiohttp_chat/venv/bin/python3.6
 
 # -*- coding: utf-8 -*-
 import re

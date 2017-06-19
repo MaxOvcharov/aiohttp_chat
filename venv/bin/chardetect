@@ -1,10 +1,10 @@
-#!/home/max/bot_project/aiohttp_chat/venv/bin/python3.5
+#!/Users/max12/Git/aiohttp_chat/venv/bin/python3.6
 
 # -*- coding: utf-8 -*-
 import re
 import sys
 
-from chardet.chardetect import main
+from chardet.cli.chardetect import main
 
 if __name__ == '__main__':
     sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
