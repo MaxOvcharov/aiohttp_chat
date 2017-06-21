@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 import asyncio
+import jinja2
 import os
 
 from aiohttp import web
-
+import aiohttp_jinja2
+import aiohttp_debugtoolbar
 from aiohttp_session import session_middleware
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from chat import sio
 from models import setup_pg
 from routes import routes
-from settings import BASE_DIR, parse_args_for_run_server
+from settings import BASE_DIR, DEBUG, parse_args_for_run_server
 from utils import load_config
 
 from middlewares import authorize
-from views import index
 
 
 async def init(loop):
@@ -24,6 +25,8 @@ async def init(loop):
         session_middleware(EncryptedCookieStorage(conf['cookes']['secret_key'])),
         authorize,
     ]
+    if DEBUG:
+        middle.append(aiohttp_debugtoolbar.middleware)
 
     app = web.Application(loop=loop, middlewares=middle)
 
@@ -32,6 +35,8 @@ async def init(loop):
     # Attach app to the Socket.io server
     sio.attach(app)
     # setup views and routes
+    aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('templates'))
+    app.router.add_static('/static/', 'static', name='static')
     app.router.add_static('/css', os.path.join(BASE_DIR, "chat/chat_widget/css"))
     app.router.add_static('/js', os.path.join(BASE_DIR, "chat/chat_widget/js"))
     app.router.add_static('/fonts', os.path.join(BASE_DIR, "chat/chat_widget/fonts"))

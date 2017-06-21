@@ -7,6 +7,7 @@ __all__ = ['logger', 'parse_args_for_run_server',
            'parse_args_for_migrate_db', 'BASE_DIR']
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEBUG = False
 
 
 logger = logging.getLogger('app')
