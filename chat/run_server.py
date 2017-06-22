@@ -36,10 +36,11 @@ async def init(loop):
     sio.attach(app)
     # setup views and routes
     aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('templates'))
-    app.router.add_static('/static/', 'static', name='static')
-    app.router.add_static('/css', os.path.join(BASE_DIR, "chat/chat_widget/css"))
-    app.router.add_static('/js', os.path.join(BASE_DIR, "chat/chat_widget/js"))
-    app.router.add_static('/fonts', os.path.join(BASE_DIR, "chat/chat_widget/fonts"))
+    app.router.add_static('/static', os.path.join(BASE_DIR, "chat/static"), name='static')
+    # app.router.add_static('/static', os.path.join(BASE_DIR, "chat/static"), name='static') #, show_index=True)
+    # app.router.add_static('/css', os.path.join(BASE_DIR, "chat/chat_widget/css"))
+    # app.router.add_static('/js', os.path.join(BASE_DIR, "chat/chat_widget/js"))
+    # app.router.add_static('/fonts', os.path.join(BASE_DIR, "chat/chat_widget/fonts"))
     # route part
     for route in routes:
         app.router.add_route(route[0], route[1], route[2], name=route[3])
