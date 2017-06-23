@@ -37,7 +37,6 @@ async def init(loop):
     # setup views and routes
     aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('templates'))
     app.router.add_static('/static', os.path.join(BASE_DIR, "chat/static"), name='static')
-    # app.router.add_static('/static', os.path.join(BASE_DIR, "chat/static"), name='static') #, show_index=True)
     # app.router.add_static('/css', os.path.join(BASE_DIR, "chat/chat_widget/css"))
     # app.router.add_static('/js', os.path.join(BASE_DIR, "chat/chat_widget/js"))
     # app.router.add_static('/fonts', os.path.join(BASE_DIR, "chat/chat_widget/fonts"))
