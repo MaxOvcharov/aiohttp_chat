@@ -31,7 +31,7 @@ async def init(loop):
     app = web.Application(loop=loop, middlewares=middle)
 
     sio.pg = await setup_pg(app, conf, loop)
-
+    app['pg'] = sio.pg
     # Attach app to the Socket.io server
     sio.attach(app)
     # setup views and routes

@@ -45,7 +45,7 @@ class Login(web.View):
         session = await get_session(self.request)
         if session.get('user'):
             redirect(self.request, 'main')
-        return {'conten': 'Please enter login or email'}
+        return {'conten': 'Please enter email and login with password'}
 
     async def post(self):
         data = await self.request.post()

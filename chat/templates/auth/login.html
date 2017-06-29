@@ -7,14 +7,22 @@
 <form autocomplete="on">
     <div id="error" style="color: red;"></div>
     <div class="form-group">
+        <label>Insert e-mail
+            <input type="text" class="form-control" placeholder="E-mail" id="email" required>
+        </label>
+    </div>
+
+    <div class="form-group">
         <label>Insert login
-            <input type="text" class="form-control" pattern="[A-Za-zА-Яа-я0-9]{3,}" placeholder="Login" id="login" required>
+            <input type="text" class="form-control" pattern="[A-Za-zА-Яа-я0-9]{3,}"
+                   placeholder="Login" id="login" required>
         </label>
     </div>
 
     <div class="form-group">
         <label>Enter password
-            <input type="password" class="form-control" pattern="[A-Za-zА-Яа-я0-9]{8,}" placeholder="Password", id="password" required>
+            <input type="password" class="form-control" pattern="[A-Za-zА-Яа-я0-9]{8,}"
+                   placeholder="Password", id="password" required>
         </label>
     </div>
     <p>

@@ -9,7 +9,8 @@ $(document).ready(function(){
     }
 
     $('#submit').click(function(){
-        var login = $('#login').val(),
+        var email = $('#email').val(),
+            login = $('#login').val(),
             password = $('#password').val();
         console.log(login, 'if pass the same');
         if(login && password){
