@@ -40,14 +40,17 @@ def convert_json(message):
 
 class Login(web.View):
 
-    @aiohttp_jinja2.template('/auth/login.html')
+    # @aiohttp_jinja2.template('/auth/login.html')
     async def get(self):
         session = await get_session(self.request)
         if session.get('user'):
             redirect(self.request, 'main')
-        return {'conten': 'Please enter email and login with password'}
+            return {'conten': 'Please enter email and login with password'}
+        return aiohttp_jinja2.render_template('/auth/login.html', self.request,
+                                              {'conten': 'Please enter email and login with password'})
 
     async def post(self):
+        print(self.request)
         data = await self.request.post()
         user = User(self.request.db, data)
         result = await user.check_user()

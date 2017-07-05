@@ -35,7 +35,8 @@ async def init(loop):
     # Attach app to the Socket.io server
     sio.attach(app)
     # setup views and routes
-    aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('templates'))
+    aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('templates'),
+                         context_processors=[aiohttp_jinja2.request_processor])
     app.router.add_static('/static', 'static', name='static')
     # app.router.add_static('/css', os.path.join(BASE_DIR, "chat/chat_widget/css"))
     # app.router.add_static('/js', os.path.join(BASE_DIR, "chat/chat_widget/js"))
