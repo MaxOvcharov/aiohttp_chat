@@ -1,67 +1,103 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 config:
-  target: "http://localhost:8080"
+  target: "http://127.0.0.1:8080"
   phases:
-    - duration: 600
-      arrivalRate: 5
-    - duration: 600
-      arrivalRate: 60
+    - duration: 28800
+      arrivalRate: 50
   variables:
-    greeting: ["hello", "goedemorgen", "добрый день", "guten tag", "bonjour", "hola"]
+    var: ['1', '2']
   processor: "./functions.js"
 
 scenarios:
-  - name: "A user that just lurks"
-    weight: 75
+  - name: "Connect and send a bunch of messages"
+    weight: 100
     engine: "socketio"
     flow:
       - get:
           url: "/"
-      - emit:
-          channel: "sendMessage"
-          data: "lurker-{{$randomString()}}"
-          namespace: "/chat"
-      - think: 60
-
-  - name: "A mostly quiet user"
-    weight: 15
-    engine: "socketio"
-    flow:
-      - get:
-          url: "/"
-      - emit:
-          channel: "sendMessage"
-          data: "quiet-{{ $randomString() }}"
-          namespace: "/chat"
-        response:
-          channel: "sendMessageResponse"
-          data: "world"
-          namespace: "/chat"
-      - think: 5
-      - emit:
-          channel: "new message"
-          data: "{{ greeting }}"
-          namespace: "/chat"
-      - think: 60
-
-  - name: "A chatty user"
-    weight: 10
-    engine: "socketio"
-    flow:
-      - get:
-          url: "/"
-      - emit:
-          channel: "sendMessage"
-          data: "chatty-{{ $randomString() }}"
-          namespace: "/chat"
-      - emit:
-          channel: "sendMessage"
-          data: "{{ greeting }}"
       - loop:
           - function: "setMessage"
           - emit:
-              channel: "sendMessage"
-              data: "{{ message }}"
+              channel: 'sendMessage'
+              data: {
+                'session_id': "{{ session_id }}",
+                'user_id': "{{ user_id }}",
+                'chat_id': '7acd5ce0-55f0-4b39-ab8a-e852a9c89ece',
+                'service_api': {
+                  'message': {
+                    'date': 1231223,
+                    'text': 'QUESTION',
+                    'message_id': 4508,
+                    'from': {
+                      'first_name': 'FIRST NAME',
+                      'last_name': 'LAST NAME',
+                      'id': '4f5bc00e-8516-49a9-8507-d475d40d06b5'
+                    },
+                    'chat': {
+                      'id': '7acd5ce0-55f0-4b39-ab8a-e852a9c89ece',
+                      'title': 'Привет, Москва!'
+                    }
+                  }
+                }
+              }
               namespace: "/chat"
-          - think: 10
-        count: 10
-      - think: 60
+#              response:
+#                channel: "messageFeedback"
+#                namespace: "/chat"
+#                data: {'status': 200, 'message': 'OK'}
+          - think: 4
+        count: 1
+
+
+
+
+#scenarios:
+#  - name: "A user that just lurks"
+#    weight: 75
+#    engine: "socketio"
+#    flow:
+#      - get:
+#          url: "/"
+#      - emit:
+#          channel: "chat"
+#          data: "lurker-{{$randomString()}}"
+#      - think: 60
+#
+#  - name: "A mostly quiet user"
+#    weight: 15
+#    engine: "socketio"
+#    flow:
+#      - get:
+#          url: "/"
+#      - emit:
+#          channel: "add user"
+#          data: "quiet-{{ $randomString() }}"
+#      - think: 5
+#      - emit:
+#          channel: "new message"
+#          data: "{{ greeting }}"
+#      - think: 60
+#
+#  - name: "A chatty user"
+#    weight: 10
+#    engine: "socketio"
+#    flow:
+#      - get:
+#          url: "/"
+#      - emit:
+#          channel: "add user"
+#          data: "chatty-{{ $randomString() }}"
+#      - emit:
+#          channel: "new message"
+#          data: "{{ greeting }}"
+#      - loop:
+#          - function: "setMessage"
+#          - emit:
+#              channel: "new message"
+#              data: "{{ message }}"
+#          - think: 10
+#        count: 10
+#      - think: 60
