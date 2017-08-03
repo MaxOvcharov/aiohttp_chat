@@ -61,6 +61,7 @@ service rabbitmq-server status
 ```
 
 [**PRODUCTION RABBITMQ SERVER CONFIGURATION**](http://www.rabbitmq.com/production-checklist.html)
+[**DESCRIPTION FOR CONFIGURATION FILE FIELDS**](http://www.rabbitmq.com/configure.html#config-location)
 
 ## == How to Create a Cluster On a Single Machine ===
 
