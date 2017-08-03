@@ -60,14 +60,44 @@ service rabbitmq-server restart
 service rabbitmq-server status
 ```
 
-### == How to Create a Cluster On a Single Machine ===
+[**PRODUCTION RABBITMQ SERVER CONFIGURATION**](http://www.rabbitmq.com/production-checklist.html)
 
-1) sudo -i
-2) Make sure that you don’t have a /etc/rabbitmq/rabbitmq.config
-3) RABBITMQ_NODE_PORT=5673 RABBITMQ_SERVER_START_ARGS="-rabbitmq_management listener [{port,15673}]" RABBITMQ_NODENAME=<YOUR_NODE_NAME> rabbitmq-server
-4) rabbitmqctl -n <YOUR_NODE_NAME> status
-5) rabbitmqctl -n <YOUR_NODE_NAME> stop_app
-6) rabbitmqctl -n <YOUR_NODE_NAME> reset
-7) rabbitmqctl -n <YOUR_NODE_NAME> join_cluster rabbit@`hostname -s`
-8) rabbitmqctl -n <YOUR_NODE_NAME> start_app
-9) rabbitmqctl cluster_status
+## == How to Create a Cluster On a Single Machine ===
+
+1) Checkout to superuser:
+```bash
+sudo -i
+```
+2) Make sure that you don’t have a rabbitmq.config:
+
+```bash
+ls -lah /etc/rabbitmq/rabbitmq.config
+```
+3) Create new RabbitMQ node:
+```bash
+RABBITMQ_NODE_PORT=5673 RABBITMQ_SERVER_START_ARGS="-rabbitmq_management listener [{port,15673}]" RABBITMQ_NODENAME=<YOUR_NODE_NAME> rabbitmq-server
+```
+4) Check node status:  
+```bash
+rabbitmqctl -n <YOUR_NODE_NAME> status
+```
+5) Stop RabbitMQ node:
+```bash 
+rabbitmqctl -n <YOUR_NODE_NAME> stop_app
+```
+6) Run RabbitMQ node:
+```bash
+rabbitmqctl -n <YOUR_NODE_NAME> reset
+```
+7) Join new node to the exist RabbitMQ cluster:
+```bash
+rabbitmqctl -n <YOUR_NODE_NAME> join_cluster rabbit@`hostname -s`
+```
+8) Start RabbitMQ node:
+```bash
+rabbitmqctl -n <YOUR_NODE_NAME> start_app
+```
+9) Check RabbitMQ cluster status:
+```bash
+rabbitmqctl cluster_status
+```
