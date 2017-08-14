@@ -37,7 +37,7 @@ cd utils
 sudo ./install_server.sh
 ```
 8) DO YOUR OWN SETTING FOR CONF FILE:
-
+```
 Selected config:
 Port           : 6379
 Config file    : /etc/redis/redis_6379.conf
@@ -45,7 +45,7 @@ Log file       : /var/log/redis_6379.log
 Data dir       : /var/redis/6379
 Executable     : /usr/local/bin/redis-server
 Cli Executable : /usr/local/bin/redis-cli
-
+```
 9) Added Redis into init.d settings:
 ```
 sudo update-rc.d redis_6379 defaults
